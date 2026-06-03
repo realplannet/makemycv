@@ -27,7 +27,11 @@
     <h1 class="hero-title">Your CV.<br>Professionally crafted.<br>In minutes.</h1>
     <p class="hero-sub">Upload your existing CV or fill a simple form. Our AI rewrites, structures, and delivers a recruiter-ready PDF and Word file — instantly.</p>
     <div class="hero-ctas">
-      <button class="btn-primary btn-large" onclick="App.startFlow('form')">
+      <button class="btn-primary btn-large" onclick="App.showScreen('screen-upload')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Existing CV
+      </button>
+      <button class="btn-ghost btn-large" onclick="App.startFlow('form')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Build from Scratch
       </button>
@@ -313,6 +317,71 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════ UPLOAD SCREEN ═══════════════════════════════════════ -->
+<div id="screen-upload" class="screen">
+  <div class="form-shell form-shell-narrow">
+    <div class="form-header">
+      <button class="back-btn" onclick="App.showLanding()">← Back</button>
+      <img src="/assets/makemycv-logo.svg" alt="MakeMyCV" height="26" />
+      <div></div>
+    </div>
+    <div class="form-body" style="padding-top:36px;">
+      <h2 class="step-title-main">Upload Your CV</h2>
+      <p class="step-subtitle">We'll extract your details and pre-fill the form. You can review and edit everything before paying.</p>
+
+      <!-- Drop zone -->
+      <div class="upload-zone" id="upload-zone"
+        ondragover="App.uploadDragOver(event)"
+        ondragleave="App.uploadDragLeave(event)"
+        ondrop="App.uploadDrop(event)"
+        onclick="document.getElementById('upload-file-input').click()">
+        <div class="upload-zone-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-zone-title">Drag &amp; drop your CV here</div>
+        <div class="upload-zone-sub">or click to browse</div>
+        <div class="upload-zone-formats">PDF · Word (.docx) · Max 10MB</div>
+      </div>
+
+      <input type="file" id="upload-file-input" accept=".pdf,.doc,.docx"
+        style="display:none" onchange="App.uploadFileSelected(event)" />
+
+      <!-- File selected state -->
+      <div class="upload-selected" id="upload-selected" style="display:none;">
+        <div class="upload-file-info">
+          <div class="upload-file-icon">📄</div>
+          <div class="upload-file-details">
+            <div class="upload-file-name" id="upload-file-name"></div>
+            <div class="upload-file-size" id="upload-file-size"></div>
+          </div>
+          <button class="btn-remove-block" onclick="App.uploadClear()">×</button>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="upload-progress" id="upload-progress" style="display:none;">
+        <div class="upload-progress-bar-wrap">
+          <div class="upload-progress-bar" id="upload-progress-bar"></div>
+        </div>
+        <div class="upload-progress-label" id="upload-progress-label">Reading file…</div>
+      </div>
+
+      <!-- Error -->
+      <div class="upload-error" id="upload-error" style="display:none;"></div>
+
+      <div class="upload-actions">
+        <button class="btn-primary btn-large" id="btn-upload-parse" onclick="App.uploadAndParse()" style="width:100%;justify-content:center;" disabled>
+          Extract & Pre-fill Form →
+        </button>
+        <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="App.startFlow('form')">
+          Skip — Fill Manually Instead
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

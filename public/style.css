@@ -419,3 +419,51 @@ input, textarea, select { font-family: var(--font-body); }
   .download-btns { flex-direction: column; }
   .trust-row { flex-direction: column; align-items: center; gap: 6px; }
 }
+
+/* ─── Upload Screen ────────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  margin-bottom: 20px;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
+.upload-zone-icon { color: var(--text-dim); margin-bottom: 12px; }
+.upload-zone:hover .upload-zone-icon, .upload-zone.drag-over .upload-zone-icon { color: var(--gold); }
+.upload-zone-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.upload-zone-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+.upload-zone-formats { font-size: 12px; color: var(--text-dim); }
+
+.upload-selected {
+  background: var(--bg-card); border: 1px solid var(--border-gold);
+  border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 20px;
+}
+.upload-file-info { display: flex; align-items: center; gap: 12px; }
+.upload-file-icon { font-size: 28px; flex-shrink: 0; }
+.upload-file-details { flex: 1; }
+.upload-file-name { font-weight: 600; font-size: 14px; word-break: break-all; }
+.upload-file-size { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.upload-progress { margin-bottom: 20px; }
+.upload-progress-bar-wrap {
+  height: 4px; background: var(--border); border-radius: 2px;
+  overflow: hidden; margin-bottom: 8px;
+}
+.upload-progress-bar {
+  height: 100%; background: var(--gold); border-radius: 2px;
+  transition: width 0.4s ease; width: 0%;
+}
+.upload-progress-label { font-size: 13px; color: var(--text-muted); text-align: center; }
+
+.upload-error {
+  background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.3);
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  font-size: 14px; color: #e05a5a; margin-bottom: 20px;
+}
+.upload-actions { display: flex; flex-direction: column; gap: 0; }

@@ -643,6 +643,153 @@ const App = (() => {
     showToast('LinkedIn add-on coming soon! Contact hello@realplannet.com', 'info');
   }
 
+  // ── Upload flow ────────────────────────────────────────────────
+  let uploadFile = null;
+
+  function uploadDragOver(e) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.add('drag-over');
+  }
+  function uploadDragLeave(e) {
+    document.getElementById('upload-zone').classList.remove('drag-over');
+  }
+  function uploadDrop(e) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.remove('drag-over');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) setUploadFile(file);
+  }
+  function uploadFileSelected(e) {
+    const file = e.target.files?.[0];
+    if (file) setUploadFile(file);
+  }
+
+  function setUploadFile(file) {
+    const maxBytes = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxBytes) {
+      showUploadError('File too large. Maximum size is 10MB.');
+      return;
+    }
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['pdf','doc','docx'].includes(ext)) {
+      showUploadError('Unsupported format. Please upload a PDF or Word (.docx) file.');
+      return;
+    }
+    uploadFile = file;
+    hideUploadError();
+
+    // Show selected file info
+    document.getElementById('upload-zone').style.display = 'none';
+    const sel = document.getElementById('upload-selected');
+    sel.style.display = 'block';
+    document.getElementById('upload-file-name').textContent = file.name;
+    document.getElementById('upload-file-size').textContent = formatBytes(file.size);
+    document.getElementById('btn-upload-parse').disabled = false;
+  }
+
+  function uploadClear() {
+    uploadFile = null;
+    document.getElementById('upload-zone').style.display = '';
+    document.getElementById('upload-selected').style.display = 'none';
+    document.getElementById('upload-progress').style.display = 'none';
+    document.getElementById('btn-upload-parse').disabled = true;
+    document.getElementById('upload-file-input').value = '';
+    hideUploadError();
+  }
+
+  async function uploadAndParse() {
+    if (!uploadFile) return;
+    const btn = document.getElementById('btn-upload-parse');
+    btn.disabled = true;
+    btn.textContent = 'Extracting…';
+    hideUploadError();
+
+    // Show progress
+    const prog = document.getElementById('upload-progress');
+    const bar  = document.getElementById('upload-progress-bar');
+    const lbl  = document.getElementById('upload-progress-label');
+    prog.style.display = 'block';
+
+    try {
+      // Step 1: read file as base64
+      lbl.textContent = 'Reading file…';
+      bar.style.width = '20%';
+      const base64 = await fileToBase64(uploadFile);
+
+      // Step 2: send to API
+      lbl.textContent = 'Extracting your details…';
+      bar.style.width = '50%';
+
+      const res = await fetch('/api/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: uploadFile.name,
+          type: uploadFile.name.split('.').pop().toLowerCase(),
+          data: base64,
+        }),
+      });
+      const json = await res.json();
+
+      if (!res.ok) throw new Error(json.error || 'Extraction failed');
+
+      // Step 3: pre-fill form data
+      lbl.textContent = 'Pre-filling your form…';
+      bar.style.width = '90%';
+
+      const parsed = json.cvData;
+      if (parsed.personal)   cvData.personal    = { ...cvData.personal, ...parsed.personal };
+      if (parsed.summary)    cvData.summary     = parsed.summary;
+      if (parsed.experience?.length) cvData.experience = parsed.experience;
+      if (parsed.education?.length)  cvData.education  = parsed.education;
+      if (parsed.skills)     cvData.skills      = { ...cvData.skills, ...parsed.skills };
+      if (parsed.extras)     cvData.extras      = { ...cvData.extras, ...parsed.extras };
+
+      bar.style.width = '100%';
+      lbl.textContent = 'Done! Review your details.';
+
+      // Small delay then go to form
+      setTimeout(() => {
+        sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        currentStep = 0;
+        showScreen('screen-form');
+        renderStep();
+        showToast('CV imported — review and edit your details below.', 'info');
+      }, 600);
+
+    } catch (err) {
+      prog.style.display = 'none';
+      btn.disabled = false;
+      btn.textContent = 'Extract & Pre-fill Form →';
+      showUploadError(err.message || 'Upload failed. Please try again or fill the form manually.');
+    }
+  }
+
+  function showUploadError(msg) {
+    const el = document.getElementById('upload-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function hideUploadError() {
+    const el = document.getElementById('upload-error');
+    if (el) el.style.display = 'none';
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
   // ── Draft persistence ──────────────────────────────────────────
   function saveDraft() {
     try {
@@ -710,6 +857,9 @@ const App = (() => {
     selectTemplate, proceedToPayment,
     initiatePayment,
     sendEmail, buyLinkedIn,
+    // Upload flow
+    uploadDragOver, uploadDragLeave, uploadDrop,
+    uploadFileSelected, uploadClear, uploadAndParse,
   };
 })();
 
