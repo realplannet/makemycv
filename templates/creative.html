@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; color: #1a1a1a; background: #fff; line-height: 1.5; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 210px; min-width: 210px; background: #c9a84c; padding: 28px 18px; color: #fff; }
+  .main { flex: 1; padding: 28px 22px; }
+  .sidebar-avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.25); margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; font-size: 26pt; font-weight: 700; color: #fff; }
+  .sidebar-name { font-size: 14pt; font-weight: 700; color: #fff; text-align: center; line-height: 1.2; }
+  .sidebar-title { font-size: 9pt; color: rgba(255,255,255,0.8); text-align: center; margin-top: 4px; margin-bottom: 20px; }
+  .sidebar-section { margin-bottom: 16px; }
+  .sidebar-label { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.65); margin-bottom: 6px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 3px; }
+  .contact-item { font-size: 8.5pt; color: rgba(255,255,255,0.9); margin-bottom: 4px; word-break: break-all; }
+  .skill-pill { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; border-radius: 12px; padding: 2px 9px; font-size: 8pt; margin: 2px 2px 2px 0; }
+  .lang-item { font-size: 9pt; color: rgba(255,255,255,0.9); margin-bottom: 3px; }
+  .main-name { font-size: 22pt; font-weight: 700; color: #c9a84c; letter-spacing: -0.01em; }
+  .main-title { font-size: 11pt; color: #555; margin-bottom: 16px; }
+  .section-title { font-size: 10pt; font-weight: 700; color: #c9a84c; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1.5px; background: #f0e0b0; }
+  .section { margin-bottom: 16px; }
+  .summary { font-size: 10pt; color: #333; line-height: 1.65; }
+  .job-header { display: flex; justify-content: space-between; align-items: baseline; }
+  .job-title { font-weight: 700; font-size: 10.5pt; color: #1a1a1a; }
+  .job-company { font-size: 9.5pt; color: #c9a84c; font-weight: 500; }
+  .job-dates { font-size: 9pt; color: #888; background: #fdf6e3; padding: 1px 7px; border-radius: 10px; white-space: nowrap; }
+  .bullets { margin-left: 14px; margin-top: 4px; }
+  .bullets li { margin-bottom: 3px; font-size: 9.5pt; color: #333; }
+  .edu-entry { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .edu-inst { font-weight: 600; }
+  .edu-deg { font-size: 9.5pt; color: #555; }
+  .edu-year { font-size: 9pt; color: #aaa; white-space: nowrap; }
+  .extras li { font-size: 9.5pt; margin-bottom: 2px; margin-left: 14px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-avatar">{{initials}}</div>
+    <div class="sidebar-name">{{name}}</div>
+    <div class="sidebar-title">{{title}}</div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Contact</div>
+      <div class="contact-item">{{email}}</div>
+      <div class="contact-item">{{phone}}</div>
+      <div class="contact-item">{{location}}</div>
+      {{#linkedin}}<div class="contact-item">{{linkedin}}</div>{{/linkedin}}
+      {{#portfolio}}<div class="contact-item">{{portfolio}}</div>{{/portfolio}}
+    </div>
+
+    {{#skills.technical.length}}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Technical</div>
+      {{#skills.technical}}<span class="skill-pill">{{.}}</span>{{/skills.technical}}
+    </div>
+    {{/skills.technical.length}}
+
+    {{#skills.soft.length}}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Soft Skills</div>
+      {{#skills.soft}}<span class="skill-pill">{{.}}</span>{{/skills.soft}}
+    </div>
+    {{/skills.soft.length}}
+
+    {{#skills.languages.length}}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Languages</div>
+      {{#skills.languages}}<div class="lang-item">{{.}}</div>{{/skills.languages}}
+    </div>
+    {{/skills.languages.length}}
+
+    {{#skills.certifications.length}}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Certifications</div>
+      {{#skills.certifications}}<div class="contact-item">{{.}}</div>{{/skills.certifications}}
+    </div>
+    {{/skills.certifications.length}}
+  </div>
+
+  <div class="main">
+    {{#summary}}
+    <div class="section">
+      <div class="section-title">Profile</div>
+      <div class="summary">{{summary}}</div>
+    </div>
+    {{/summary}}
+
+    {{#experience.length}}
+    <div class="section">
+      <div class="section-title">Experience</div>
+      {{#experience}}
+      <div style="margin-bottom:12px;">
+        <div class="job-header">
+          <div class="job-title">{{title}}</div>
+          <div class="job-dates">{{start}} – {{#current}}Present{{/current}}{{^current}}{{end}}{{/current}}</div>
+        </div>
+        <div class="job-company">{{company}}</div>
+        <ul class="bullets">{{#bullets}}<li>{{.}}</li>{{/bullets}}</ul>
+      </div>
+      {{/experience}}
+    </div>
+    {{/experience.length}}
+
+    {{#education.length}}
+    <div class="section">
+      <div class="section-title">Education</div>
+      {{#education}}
+      <div class="edu-entry">
+        <div><div class="edu-inst">{{institution}}</div><div class="edu-deg">{{degree}}{{#grade}} · {{grade}}{{/grade}}</div></div>
+        <div class="edu-year">{{year}}</div>
+      </div>
+      {{/education}}
+    </div>
+    {{/education.length}}
+
+    {{#hasExtras}}
+    <div class="section">
+      <div class="section-title">More</div>
+      {{#extras.awards.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Awards</strong><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.awards.length}}
+      {{#extras.projects.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Projects</strong><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.projects.length}}
+      {{#extras.volunteer.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Volunteer</strong><ul class="extras">{{#extras.volunteer}}<li>{{.}}</li>{{/extras.volunteer}}</ul></div>{{/extras.volunteer.length}}
+    </div>
+    {{/hasExtras}}
+  </div>
+</div>
+</body>
+</html>

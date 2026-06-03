@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Make My CV — Upload. Transform. Get Hired.">
+  <defs>
+    <linearGradient id="ogGold" x1="0" y1="0" x2="600" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e8c97a"></stop>
+      <stop offset="1" stop-color="#c9a84c"></stop>
+    </linearGradient>
+    <linearGradient id="ogBg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#050508"></stop>
+      <stop offset="1" stop-color="#080d1a"></stop>
+    </linearGradient>
+  </defs>
+
+  
+  <rect width="1200" height="630" fill="url(#ogBg)"></rect>
+
+  
+  <line x1="0" y1="210" x2="1200" y2="210" stroke="#f5f4f0" stroke-opacity="0.03" stroke-width="1"></line>
+  <line x1="0" y1="420" x2="1200" y2="420" stroke="#f5f4f0" stroke-opacity="0.03" stroke-width="1"></line>
+  <line x1="400" y1="0" x2="400" y2="630" stroke="#f5f4f0" stroke-opacity="0.03" stroke-width="1"></line>
+  <line x1="800" y1="0" x2="800" y2="630" stroke="#f5f4f0" stroke-opacity="0.03" stroke-width="1"></line>
+
+  
+  <rect x="0" y="0" width="6" height="630" fill="url(#ogGold)"></rect>
+
+  
+  
+  <rect x="80" y="160" width="72" height="88" rx="8" fill="#0a0a0f" stroke="url(#ogGold)" stroke-width="2.5"></rect>
+  <path d="M128 160 L152 184 L128 184 Z" fill="#c9a84c" opacity="0.2"></path>
+  <path d="M128 160 L152 184" stroke="#c9a84c" stroke-width="2"></path>
+  <text x="116" y="228" font-family="&#39;Cormorant Garamond&#39;, Georgia, serif" font-weight="700" font-size="28" fill="url(#ogGold)" text-anchor="middle" letter-spacing="2">CV</text>
+  <line x1="88" y1="200" x2="120" y2="200" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.35"></line>
+  <line x1="88" y1="210" x2="114" y2="210" stroke="#c9a84c" stroke-width="1.2" stroke-opacity="0.2"></line>
+
+  
+  <text x="80" y="310" font-family="&#39;DM Sans&#39;, -apple-system, sans-serif" font-weight="300" font-size="72" fill="#f5f4f0" letter-spacing="-1">Make My</text>
+  <text x="80" y="400" font-family="&#39;Cormorant Garamond&#39;, Georgia, serif" font-weight="600" font-size="100" fill="url(#ogGold)" letter-spacing="6">CV</text>
+
+  
+  <text x="80" y="450" font-family="&#39;DM Sans&#39;, sans-serif" font-weight="300" font-size="24" fill="#f5f4f0" opacity="0.5" letter-spacing="2">Upload. Transform. Get Hired.</text>
+
+  
+  <line x1="700" y1="80" x2="700" y2="550" stroke="#c9a84c" stroke-opacity="0.1" stroke-width="1"></line>
+
+  
+  
+  <rect x="760" y="120" width="320" height="400" rx="10" fill="#0a0a0f" stroke="#c9a84c" stroke-opacity="0.25" stroke-width="1.5"></rect>
+  
+  <path d="M1040 120 L1080 160 L1040 160 Z" fill="#c9a84c" opacity="0.15"></path>
+  <path d="M1040 120 L1080 160" stroke="#c9a84c" stroke-width="1.5" stroke-opacity="0.5"></path>
+
+  
+  
+  <rect x="785" y="148" width="160" height="8" rx="2" fill="#c9a84c" opacity="0.6"></rect>
+  <rect x="785" y="163" width="100" height="5" rx="2" fill="#f5f4f0" opacity="0.15"></rect>
+
+  
+  <rect x="785" y="192" width="60" height="5" rx="2" fill="#c9a84c" opacity="0.4"></rect>
+  <rect x="785" y="204" width="280" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+  <rect x="785" y="213" width="240" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+  <rect x="785" y="222" width="260" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+
+  
+  <rect x="785" y="248" width="80" height="5" rx="2" fill="#c9a84c" opacity="0.4"></rect>
+  <rect x="785" y="260" width="280" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+  <rect x="785" y="269" width="200" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+  <rect x="785" y="278" width="250" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+  <rect x="785" y="287" width="180" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+
+  
+  <rect x="785" y="313" width="55" height="5" rx="2" fill="#c9a84c" opacity="0.4"></rect>
+  <rect x="785" y="325" width="280" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+  <rect x="785" y="334" width="220" height="4" rx="2" fill="#f5f4f0" opacity="0.12"></rect>
+
+  
+  <rect x="785" y="360" width="65" height="16" rx="8" fill="#c9a84c" opacity="0.15" stroke="#c9a84c" stroke-opacity="0.3" stroke-width="1"></rect>
+  <rect x="858" y="360" width="55" height="16" rx="8" fill="#c9a84c" opacity="0.15" stroke="#c9a84c" stroke-opacity="0.3" stroke-width="1"></rect>
+  <rect x="921" y="360" width="70" height="16" rx="8" fill="#c9a84c" opacity="0.15" stroke="#c9a84c" stroke-opacity="0.3" stroke-width="1"></rect>
+
+  
+  <circle cx="920" cy="315" r="40" fill="none" stroke="#c9a84c" stroke-opacity="0.06" stroke-width="1" stroke-dasharray="3 4"></circle>
+  <circle cx="920" cy="275" r="5" fill="#c9a84c" opacity="0.3"></circle>
+
+  
+  <rect x="0" y="590" width="1200" height="40" fill="#c9a84c" opacity="0.06"></rect>
+  <line x1="0" y1="590" x2="1200" y2="590" stroke="#c9a84c" stroke-opacity="0.15" stroke-width="1"></line>
+
+  
+  <g transform="translate(48, 598) scale(0.38)">
+    <ellipse cx="32" cy="33" rx="27" ry="9.5" transform="rotate(-20 32 33)" stroke="#a8842f" stroke-width="1.4" opacity="0.5"></ellipse>
+    <circle cx="32" cy="30" r="13" fill="#c9a84c" opacity="0.6"></circle>
+    <path d="M5.5 38 A27 9.5 0 0 0 58.5 28" transform="rotate(-20 32 33)" stroke="#a8842f" stroke-width="1.8" fill="none"></path>
+  </g>
+  <text x="78" y="615" font-family="&#39;DM Sans&#39;, sans-serif" font-weight="300" font-size="13" fill="#a8842f" letter-spacing="1" opacity="0.8">A Real Plannet Service  ·  resume.realplannet.com</text>
+</svg>

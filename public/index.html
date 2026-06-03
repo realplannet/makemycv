@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MakeMyCV — Professional CV in Minutes | Real Plannet</title>
+  <meta name="description" content="Upload your existing CV or fill a simple form. Pay once. Download a professionally crafted PDF and Word CV powered by AI." />
+  <link rel="icon" href="/assets/makemycv-favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ LANDING PAGE ═══════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+
+  <nav class="nav">
+    <a href="https://realplannet.com" class="nav-logo">
+      <img src="/assets/realplannet-logo-light.svg" alt="Real Plannet" height="28" />
+    </a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">AI-Powered · Pay Once · No Subscription</div>
+    <h1 class="hero-title">Your CV.<br>Professionally crafted.<br>In minutes.</h1>
+    <p class="hero-sub">Upload your existing CV or fill a simple form. Our AI rewrites, structures, and delivers a recruiter-ready PDF and Word file — instantly.</p>
+    <div class="hero-ctas">
+      <button class="btn-primary btn-large" onclick="App.startFlow('form')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Build from Scratch
+      </button>
+    </div>
+    <p class="hero-note">No account required &nbsp;·&nbsp; Files ready in 60 seconds</p>
+  </section>
+
+  <section class="how-it-works">
+    <div class="section-label">How It Works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Fill Your Details</div>
+        <div class="step-desc">Enter your work history, education, and skills in our guided form — takes about 5 minutes.</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Pay Once</div>
+        <div class="step-desc">Single fixed price. No subscription. Secure payment via Razorpay — UPI, card, net banking.</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Download Both Files</div>
+        <div class="step-desc">AI crafts your CV. Download PDF and Word instantly. Links valid for 24 hours.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="templates-preview">
+    <div class="section-label">5 Professional Templates</div>
+    <div class="template-cards">
+      <div class="tcard"><div class="tcard-thumb tcard-classic"></div><div class="tcard-name">Classic</div><div class="tcard-ats">✓ ATS Safe</div></div>
+      <div class="tcard"><div class="tcard-thumb tcard-modern"></div><div class="tcard-name">Modern</div><div class="tcard-ats">✓ ATS Safe</div></div>
+      <div class="tcard tcard-featured"><div class="tcard-thumb tcard-executive"></div><div class="tcard-name">Executive</div><div class="tcard-ats">✓ ATS Safe</div></div>
+      <div class="tcard"><div class="tcard-thumb tcard-minimal"></div><div class="tcard-name">Minimal</div><div class="tcard-ats">✓ ATS Safe</div></div>
+      <div class="tcard"><div class="tcard-thumb tcard-creative"></div><div class="tcard-name">Creative</div><div class="tcard-ats">⚡ Partial ATS</div></div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="section-label">Pricing</div>
+    <div class="price-card">
+      <div class="price-amount">₹199</div>
+      <div class="price-label">One CV · One Payment · Done</div>
+      <ul class="price-features">
+        <li>✓ AI-enhanced professional content</li>
+        <li>✓ PDF + Word (.docx) download</li>
+        <li>✓ Choice of 5 templates</li>
+        <li>✓ ATS-optimised formatting</li>
+        <li>✓ No account required</li>
+      </ul>
+      <button class="btn-primary btn-large" onclick="App.startFlow('form')">Get My CV Now</button>
+      <div class="price-trust">🔒 Secure payment via Razorpay &nbsp;·&nbsp; MSME Registered</div>
+    </div>
+  </section>
+
+  <section class="faq">
+    <div class="section-label">FAQ</div>
+    <div class="faq-list">
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">How long does it take?<span class="faq-chevron">›</span></div>
+        <div class="faq-a">Once you complete the form and pay, your CV is ready in 30–60 seconds. Both PDF and Word files are generated simultaneously.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">What AI model is used?<span class="faq-chevron">›</span></div>
+        <div class="faq-a">We use Anthropic's Claude — one of the most capable AI models available — trained specifically to write professional, recruiter-ready CVs.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Is my data safe?<span class="faq-chevron">›</span></div>
+        <div class="faq-a">Your CV data is used only to generate your files and is automatically deleted after 24 hours. We never sell or share your information.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Can I edit the Word file later?<span class="faq-chevron">›</span></div>
+        <div class="faq-a">Yes — the Word (.docx) file is fully editable. Update it anytime in Microsoft Word, Google Docs, or LibreOffice.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">What payment methods are accepted?<span class="faq-chevron">›</span></div>
+        <div class="faq-a">UPI, debit/credit cards, net banking, and international cards — all via Razorpay's secure payment gateway.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <img src="/assets/realplannet-logo-light.svg" alt="Real Plannet" height="22" />
+    <p>© 2026 Real Plannet · Udyam Registered MSME · Bangalore, India</p>
+    <div class="footer-links">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="mailto:hello@realplannet.com">Contact</a>
+      <a href="https://realplannet.com">realplannet.com</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════ CV FORM SCREEN ═══════════════════════════════════════ -->
+<div id="screen-form" class="screen">
+  <div class="form-shell">
+    <div class="form-header">
+      <button class="back-btn" onclick="App.showLanding()">← Back</button>
+      <img src="/assets/makemycv-logo.svg" alt="MakeMyCV" height="26" />
+      <div class="form-save-status" id="save-status">Draft saved</div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+      <div class="progress-steps" id="progress-steps"></div>
+    </div>
+
+    <div class="form-body" id="form-body">
+      <!-- Steps rendered by JS -->
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-ghost" id="btn-prev" onclick="App.prevStep()">← Back</button>
+      <button class="btn-primary" id="btn-next" onclick="App.nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TEMPLATE PICKER ═══════════════════════════════════════ -->
+<div id="screen-template" class="screen">
+  <div class="form-shell">
+    <div class="form-header">
+      <button class="back-btn" onclick="App.goToStep(6)">← Back</button>
+      <img src="/assets/makemycv-logo.svg" alt="MakeMyCV" height="26" />
+      <div></div>
+    </div>
+    <div class="form-body">
+      <h2 class="step-title-main">Choose Your Template</h2>
+      <p class="step-subtitle">All templates are professionally designed. Select one to continue.</p>
+      <div class="template-picker" id="template-picker">
+        <div class="tpick" data-template="classic" onclick="App.selectTemplate('classic')">
+          <div class="tpick-preview tpick-classic">
+            <div class="tp-name-bar"></div>
+            <div class="tp-line tp-long"></div>
+            <div class="tp-section">
+              <div class="tp-h"></div>
+              <div class="tp-line"></div><div class="tp-line tp-short"></div>
+            </div>
+          </div>
+          <div class="tpick-info"><div class="tpick-name">Classic</div><div class="tpick-desc">Single column · ATS-safe · Corporate</div></div>
+        </div>
+        <div class="tpick" data-template="modern" onclick="App.selectTemplate('modern')">
+          <div class="tpick-preview tpick-modern">
+            <div class="tp-sidebar"></div>
+            <div class="tp-content"><div class="tp-h"></div><div class="tp-line"></div><div class="tp-line tp-short"></div></div>
+          </div>
+          <div class="tpick-info"><div class="tpick-name">Modern</div><div class="tpick-desc">Two column · Icon accents · Tech / Mid-career</div></div>
+        </div>
+        <div class="tpick" data-template="executive" onclick="App.selectTemplate('executive')">
+          <div class="tpick-preview tpick-executive">
+            <div class="tp-centered-name"></div>
+            <div class="tp-gold-rule"></div>
+            <div class="tp-h"></div><div class="tp-line"></div><div class="tp-line tp-short"></div>
+          </div>
+          <div class="tpick-info"><div class="tpick-name">Executive</div><div class="tpick-badge">Premium</div><div class="tpick-desc">Serif · Wide margins · Senior / C-suite</div></div>
+        </div>
+        <div class="tpick" data-template="minimal" onclick="App.selectTemplate('minimal')">
+          <div class="tpick-preview tpick-minimal">
+            <div class="tp-name-bar tp-light"></div>
+            <div class="tp-line tp-thin"></div><div class="tp-line tp-thin tp-short"></div>
+            <div class="tp-space"></div>
+            <div class="tp-line tp-thin"></div>
+          </div>
+          <div class="tpick-info"><div class="tpick-name">Minimal</div><div class="tpick-desc">Ultra-clean · Whitespace · Design / Startups</div></div>
+        </div>
+        <div class="tpick" data-template="creative" onclick="App.selectTemplate('creative')">
+          <div class="tpick-preview tpick-creative">
+            <div class="tp-gold-sidebar"></div>
+            <div class="tp-content"><div class="tp-h tp-white"></div><div class="tp-line tp-dark"></div><div class="tp-line tp-dark tp-short"></div></div>
+          </div>
+          <div class="tpick-info"><div class="tpick-name">Creative</div><div class="tpick-desc">Gold sidebar · Bold · Creative roles</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <div></div>
+      <button class="btn-primary" onclick="App.proceedToPayment()">Continue to Payment →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ PAYMENT SCREEN ═══════════════════════════════════════ -->
+<div id="screen-payment" class="screen">
+  <div class="form-shell form-shell-narrow">
+    <div class="form-header">
+      <button class="back-btn" onclick="App.showScreen('screen-template')">← Back</button>
+      <img src="/assets/makemycv-logo.svg" alt="MakeMyCV" height="26" />
+      <div></div>
+    </div>
+    <div class="form-body">
+      <h2 class="step-title-main">Complete Payment</h2>
+      <div class="order-summary">
+        <div class="order-row">
+          <span>1× Professional CV (PDF + Word)</span>
+          <span class="order-price">₹199</span>
+        </div>
+        <div class="order-row order-template-row">
+          <span>Template: <span id="payment-template-name">Classic</span></span>
+          <span class="order-included">Included</span>
+        </div>
+        <div class="order-divider"></div>
+        <div class="order-row order-total">
+          <span>Total</span>
+          <span>₹199</span>
+        </div>
+      </div>
+      <div class="trust-row">
+        <span>🔒 Secured by Razorpay</span>
+        <span>🏛 MSME Registered</span>
+        <span>📄 1,000+ CVs generated</span>
+      </div>
+      <button class="btn-primary btn-large btn-pay" id="btn-pay" onclick="App.initiatePayment()">
+        Pay ₹199 Securely
+      </button>
+      <p class="pay-note">You'll be redirected to Razorpay's secure checkout. UPI · Card · Net Banking · International</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ GENERATION SCREEN ═══════════════════════════════════════ -->
+<div id="screen-generating" class="screen">
+  <div class="generating-shell">
+    <div class="gen-logo">
+      <img src="/assets/makemycv-mark.svg" alt="MakeMyCV" height="48" />
+    </div>
+    <h2 class="gen-title">Crafting your CV…</h2>
+    <div class="gen-steps" id="gen-steps">
+      <div class="gen-step" id="gstep-0"><span class="gs-dot"></span><span class="gs-label">Structuring your data</span></div>
+      <div class="gen-step" id="gstep-1"><span class="gs-dot"></span><span class="gs-label">AI enhancing content</span></div>
+      <div class="gen-step" id="gstep-2"><span class="gs-dot"></span><span class="gs-label">Applying template</span></div>
+      <div class="gen-step" id="gstep-3"><span class="gs-dot"></span><span class="gs-label">Generating PDF + Word</span></div>
+    </div>
+    <div class="gen-bar-wrap"><div class="gen-bar" id="gen-bar"></div></div>
+    <p class="gen-note">Usually takes 30–60 seconds</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ DOWNLOAD SCREEN ═══════════════════════════════════════ -->
+<div id="screen-download" class="screen">
+  <div class="form-shell form-shell-narrow">
+    <div class="form-body" style="padding-top:40px;">
+      <div class="success-icon">✓</div>
+      <h2 class="step-title-main">Your CV is ready!</h2>
+      <p class="step-subtitle">Download your files below. Links are valid for 24 hours.</p>
+
+      <div class="download-btns">
+        <a id="dl-pdf" class="btn-download btn-pdf" href="#" download>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Download PDF
+        </a>
+        <a id="dl-docx" class="btn-download btn-docx" href="#" download>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Download Word
+        </a>
+      </div>
+
+      <div class="email-delivery">
+        <p class="email-label">Or send to your email</p>
+        <div class="email-row">
+          <input type="email" id="dl-email" class="form-input" placeholder="your@email.com" />
+          <button class="btn-primary" onclick="App.sendEmail()">Send</button>
+        </div>
+        <div id="email-msg" class="email-msg"></div>
+      </div>
+
+      <div class="upsell-card">
+        <div class="upsell-badge">Add-on</div>
+        <div class="upsell-title">LinkedIn Headline + Summary</div>
+        <div class="upsell-desc">AI-crafted LinkedIn profile headline and 3-paragraph summary, optimised for recruiters to find you.</div>
+        <div class="upsell-price">₹49 extra</div>
+        <button class="btn-ghost btn-upsell" onclick="App.buyLinkedIn()">Add LinkedIn Copy →</button>
+      </div>
+
+      <div class="share-row">
+        <span>Built with</span>
+        <a href="https://makemycv.realplannet.com" class="share-link">makemycv.realplannet.com</a>
+      </div>
+
+      <button class="btn-ghost" style="margin-top:24px;width:100%;" onclick="App.showLanding()">← Build Another CV</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="320" height="72" fill="none" role="img" aria-label="Real Plannet">
+  <defs>
+    <linearGradient id="rpGold" x1="20" y1="16" x2="44" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e8c97a"></stop>
+      <stop offset="1" stop-color="#c9a84c"></stop>
+    </linearGradient>
+    
+  </defs>
+  <g transform="translate(4,4)">
+    <ellipse cx="32" cy="33" rx="27" ry="9.5" transform="rotate(-20 32 33)" stroke="#c9a84c" stroke-width="1.4" opacity="0.45"></ellipse>
+    <circle cx="32" cy="30" r="13" fill="url(#rpGold)"></circle>
+    <path d="M5.5 38 A27 9.5 0 0 0 58.5 28" transform="rotate(-20 32 33)" stroke="#c9a84c" stroke-width="1.8" fill="none"></path>
+  </g>
+  <line x1="84" y1="20" x2="84" y2="52" stroke="#c9a84c" stroke-opacity="0.28" stroke-width="1"></line>
+  <text x="100" y="46" font-family="&#39;Cormorant Garamond&#39;, serif" font-weight="500" font-size="34" letter-spacing="0.5" fill="#f5f4f0">Real <tspan fill="#c9a84c">Plannet</tspan></text>
+</svg>

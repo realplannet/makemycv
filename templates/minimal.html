@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; color: #222; background: #fff; line-height: 1.6; padding: 25mm 24mm; }
+  .name { font-size: 20pt; font-weight: 300; letter-spacing: 0.06em; color: #111; }
+  .title { font-size: 10.5pt; color: #888; margin-top: 3px; font-weight: 300; }
+  .contact { margin-top: 8px; font-size: 9pt; color: #666; }
+  .contact span { margin-right: 16px; }
+  .rule { border: none; border-top: 1px solid #e0e0e0; margin: 14px 0; }
+  .section-title { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.2em; color: #aaa; margin-bottom: 10px; font-weight: 400; }
+  .section { margin-bottom: 18px; }
+  .summary { font-size: 10pt; color: #333; line-height: 1.7; font-weight: 300; }
+  .job-header { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .job-title { font-weight: 500; font-size: 10pt; }
+  .job-company { font-size: 9.5pt; color: #555; font-weight: 300; }
+  .job-dates { font-size: 9pt; color: #aaa; }
+  .bullets { margin-left: 0; margin-top: 5px; list-style: none; }
+  .bullets li { margin-bottom: 3px; font-size: 9.5pt; color: #444; padding-left: 12px; position: relative; font-weight: 300; }
+  .bullets li::before { content: '—'; position: absolute; left: 0; color: #ccc; }
+  .edu-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .edu-inst { font-weight: 500; font-size: 10pt; }
+  .edu-deg { font-size: 9.5pt; color: #666; font-weight: 300; }
+  .edu-year { font-size: 9pt; color: #aaa; }
+  .skills-block { font-size: 9.5pt; color: #444; font-weight: 300; margin-bottom: 4px; }
+  .skills-block strong { font-weight: 500; color: #222; }
+  .extras li { font-size: 9.5pt; font-weight: 300; color: #444; margin-bottom: 3px; padding-left: 12px; list-style: none; position: relative; }
+  .extras li::before { content: '—'; position: absolute; left: 0; color: #ccc; }
+</style>
+</head>
+<body>
+  <div class="name">{{name}}</div>
+  <div class="title">{{title}}</div>
+  <div class="contact">
+    <span>{{email}}</span><span>{{phone}}</span><span>{{location}}</span>
+    {{#linkedin}}<span>{{linkedin}}</span>{{/linkedin}}
+    {{#portfolio}}<span>{{portfolio}}</span>{{/portfolio}}
+  </div>
+  <hr class="rule">
+
+  {{#summary}}
+  <div class="section">
+    <div class="section-title">About</div>
+    <div class="summary">{{summary}}</div>
+  </div>
+  <hr class="rule">
+  {{/summary}}
+
+  {{#experience.length}}
+  <div class="section">
+    <div class="section-title">Experience</div>
+    {{#experience}}
+    <div style="margin-bottom:12px;">
+      <div class="job-header">
+        <div><span class="job-title">{{title}}</span> &nbsp;·&nbsp; <span class="job-company">{{company}}</span></div>
+        <div class="job-dates">{{start}} – {{#current}}Present{{/current}}{{^current}}{{end}}{{/current}}</div>
+      </div>
+      <ul class="bullets">{{#bullets}}<li>{{.}}</li>{{/bullets}}</ul>
+    </div>
+    {{/experience}}
+  </div>
+  <hr class="rule">
+  {{/experience.length}}
+
+  {{#education.length}}
+  <div class="section">
+    <div class="section-title">Education</div>
+    {{#education}}
+    <div class="edu-row">
+      <div><div class="edu-inst">{{institution}}</div><div class="edu-deg">{{degree}}{{#grade}} · {{grade}}{{/grade}}</div></div>
+      <div class="edu-year">{{year}}</div>
+    </div>
+    {{/education}}
+  </div>
+  <hr class="rule">
+  {{/education.length}}
+
+  <div class="section">
+    <div class="section-title">Skills</div>
+    {{#skills.technical.length}}<div class="skills-block"><strong>Technical</strong> &nbsp;{{skills.technical_str}}</div>{{/skills.technical.length}}
+    {{#skills.soft.length}}<div class="skills-block"><strong>Soft</strong> &nbsp;{{skills.soft_str}}</div>{{/skills.soft.length}}
+    {{#skills.certifications.length}}<div class="skills-block"><strong>Certifications</strong> &nbsp;{{skills.certifications_str}}</div>{{/skills.certifications.length}}
+    {{#skills.languages.length}}<div class="skills-block"><strong>Languages</strong> &nbsp;{{skills.languages_str}}</div>{{/skills.languages.length}}
+  </div>
+
+  {{#hasExtras}}
+  <hr class="rule">
+  <div class="section">
+    <div class="section-title">More</div>
+    {{#extras.awards.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Awards</strong><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.awards.length}}
+    {{#extras.projects.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Projects</strong><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.projects.length}}
+    {{#extras.volunteer.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Volunteer</strong><ul class="extras">{{#extras.volunteer}}<li>{{.}}</li>{{/extras.volunteer}}</ul></div>{{/extras.volunteer.length}}
+  </div>
+  {{/hasExtras}}
+</body>
+</html>
