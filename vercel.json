@@ -27,6 +27,21 @@
     },
     "api/payment/verify.js": {
       "maxDuration": 10
+    },
+    "api/email.js": {
+      "maxDuration": 15
+    },
+    "api/linkedin.js": {
+      "maxDuration": 30
+    },
+    "api/admin/orders.js": {
+      "maxDuration": 10
+    },
+    "api/admin/stats.js": {
+      "maxDuration": 10
+    },
+    "api/parse.js": {
+      "maxDuration": 30
     }
   }
 }

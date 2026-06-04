@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MakeMyCV — Admin Portal</title>
+  <link rel="icon" href="/assets/makemycv-favicon.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#050508;--bg2:#0d0d12;--bg3:#12121a;
+      --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.25);
+      --text:#e8e4dc;--muted:#888;--dim:#444;
+      --border:rgba(255,255,255,0.07);
+      --green:#4caf7d;--red:#e05a5a;--blue:#4a90d9;
+      --r:8px;--font:'DM Sans',sans-serif;
+    }
+    html{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px}
+    body{min-height:100vh}
+    a{color:var(--gold);text-decoration:none}
+
+    /* ── Login ── */
+    #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+    .login-box{background:var(--bg2);border:1px solid var(--gold-border);border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center}
+    .login-logo{font-size:22px;font-weight:600;color:var(--gold);margin-bottom:4px}
+    .login-sub{font-size:12px;color:var(--dim);margin-bottom:32px;text-transform:uppercase;letter-spacing:0.1em}
+    .login-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:15px;padding:12px 14px;outline:none;margin-bottom:12px;font-family:var(--font)}
+    .login-input:focus{border-color:var(--gold)}
+    .login-input[type=password]{letter-spacing:0.15em}
+    .btn-login{width:100%;background:var(--gold);color:#0a0a0a;font-size:15px;font-weight:600;padding:13px;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--font)}
+    .btn-login:hover{background:#e0c06e}
+    .login-error{font-size:13px;color:var(--red);margin-top:10px;min-height:18px}
+
+    /* ── Shell ── */
+    #admin-shell{display:none}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .topbar-brand{font-size:16px;font-weight:600;color:var(--gold)}
+    .topbar-right{display:flex;align-items:center;gap:16px}
+    .topbar-sub{font-size:12px;color:var(--dim)}
+    .btn-logout{background:none;border:1px solid var(--border);color:var(--muted);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:var(--font)}
+    .btn-logout:hover{border-color:var(--red);color:var(--red)}
+    .main{max-width:1200px;margin:0 auto;padding:28px 24px}
+
+    /* ── Stats cards ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px 18px}
+    .stat-card.gold{border-color:var(--gold-border);background:var(--gold-dim)}
+    .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px}
+    .stat-value{font-size:28px;font-weight:600;color:var(--text);line-height:1}
+    .stat-value.gold{color:var(--gold)}
+    .stat-sub{font-size:12px;color:var(--dim);margin-top:4px}
+
+    /* ── Section ── */
+    .section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px;overflow:hidden}
+    .section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+    .section-title{font-size:14px;font-weight:600}
+    .section-body{padding:20px}
+
+    /* ── Filters ── */
+    .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .filter-input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;padding:8px 12px;outline:none;font-family:var(--font);min-width:200px}
+    .filter-input:focus{border-color:var(--gold)}
+    .filter-select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;padding:8px 12px;outline:none;font-family:var(--font)}
+    .btn-refresh{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:13px;padding:8px 14px;border-radius:6px;cursor:pointer;font-family:var(--font)}
+    .btn-refresh:hover{background:rgba(201,168,76,0.2)}
+
+    /* ── Table ── */
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+    td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,0.02)}
+    .td-name{font-weight:500;color:var(--text)}
+    .td-email{color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .td-date{color:var(--dim);white-space:nowrap;font-size:12px}
+    .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+    .badge-paid{background:rgba(76,175,125,0.15);color:var(--green);border:1px solid rgba(76,175,125,0.3)}
+    .badge-template{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+    .badge-linkedin{background:rgba(74,144,217,0.15);color:var(--blue);border:1px solid rgba(74,144,217,0.3)}
+
+    /* ── Pagination ── */
+    .pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+    .pg-btns{display:flex;gap:6px}
+    .btn-pg{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--font)}
+    .btn-pg:hover{border-color:var(--gold);color:var(--gold)}
+    .btn-pg:disabled{opacity:0.3;cursor:default}
+
+    /* ── Template chart ── */
+    .template-bars{display:flex;flex-direction:column;gap:10px}
+    .tbar-row{display:flex;align-items:center;gap:12px}
+    .tbar-label{width:80px;font-size:13px;color:var(--muted);text-transform:capitalize}
+    .tbar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+    .tbar-fill{height:100%;background:var(--gold);border-radius:4px;transition:width 0.5s ease}
+    .tbar-count{font-size:12px;color:var(--dim);min-width:24px;text-align:right}
+
+    /* ── Empty/loading ── */
+    .empty{padding:40px;text-align:center;color:var(--dim)}
+    .loading-row td{text-align:center;color:var(--dim);padding:32px}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Responsive ── */
+    @media(max-width:600px){
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .filters{flex-direction:column;align-items:stretch}
+      .filter-input,.filter-select{min-width:unset;width:100%}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">MakeMyCV</div>
+    <div class="login-sub">Admin Portal · Real Plannet</div>
+    <input class="login-input" type="text" id="login-user" placeholder="Admin username" autocomplete="username" />
+    <input class="login-input" type="password" id="login-pass" placeholder="Admin secret key" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter') Admin.login()" />
+    <button class="btn-login" onclick="Admin.login()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div id="admin-shell">
+  <div class="topbar">
+    <div>
+      <span class="topbar-brand">MakeMyCV Admin</span>
+      <span class="topbar-sub" style="margin-left:12px;">Real Plannet</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-sub" id="last-refresh"></span>
+      <button class="btn-logout" onclick="Admin.logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total CVs</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">All time</div></div>
+      <div class="stat-card"><div class="stat-label">Today</div><div class="stat-value" id="s-today">—</div><div class="stat-sub">CVs generated</div></div>
+      <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-value" id="s-month">—</div><div class="stat-sub">CVs generated</div></div>
+      <div class="stat-card gold"><div class="stat-label">Total Revenue</div><div class="stat-value gold" id="s-rev">—</div><div class="stat-sub" id="s-rev-month">Month: —</div></div>
+      <div class="stat-card"><div class="stat-label">LinkedIn Add-ons</div><div class="stat-value" id="s-li">—</div><div class="stat-sub">₹49 each</div></div>
+    </div>
+
+    <!-- Template breakdown + Recent -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;" id="mid-grid">
+      <div class="section">
+        <div class="section-header"><span class="section-title">Templates Used</span></div>
+        <div class="section-body"><div class="template-bars" id="template-bars"><div class="empty">Loading…</div></div></div>
+      </div>
+      <div class="section">
+        <div class="section-header"><span class="section-title">Recent Orders</span></div>
+        <div class="section-body" style="padding:0;">
+          <table><thead><tr><th>Name</th><th>Template</th><th>Date</th></tr></thead>
+          <tbody id="recent-tbody"><tr class="loading-row"><td colspan="3"><span class="spinner"></span>Loading</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders table -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">All Orders</span>
+        <div class="filters">
+          <input class="filter-input" id="f-search" placeholder="Search name or email…" oninput="Admin.debounceSearch()" />
+          <select class="filter-select" id="f-status" onchange="Admin.loadOrders(1)">
+            <option value="">All status</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+          </select>
+          <button class="btn-refresh" onclick="Admin.loadOrders(1)">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Template</th>
+              <th>Amount</th>
+              <th>Payment ID</th>
+              <th>LinkedIn</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr class="loading-row"><td colspan="9"><span class="spinner"></span>Loading orders…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span id="pg-info">—</span>
+        <div class="pg-btns">
+          <button class="btn-pg" id="btn-prev" onclick="Admin.changePage(-1)" disabled>← Prev</button>
+          <button class="btn-pg" id="btn-next" onclick="Admin.changePage(1)" disabled>Next →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const Admin = (() => {
+  let secret = '';
+  let currentPage = 1;
+  let totalPages  = 1;
+  let searchTimer = null;
+
+  // ── Auth ──────────────────────────────────────────────────────
+  function login() {
+    const user = document.getElementById('login-user').value.trim();
+    const pass = document.getElementById('login-pass').value.trim();
+    if (!user || !pass) {
+      document.getElementById('login-error').textContent = 'Enter username and secret key.';
+      return;
+    }
+    // Username is just UI label — secret key is what matters for API auth
+    secret = pass;
+    sessionStorage.setItem('admin_secret', secret);
+    showShell();
+  }
+
+  function logout() {
+    secret = '';
+    sessionStorage.removeItem('admin_secret');
+    document.getElementById('admin-shell').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-error').textContent = '';
+  }
+
+  function showShell() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-shell').style.display  = 'block';
+    document.getElementById('login-error').textContent = '';
+    loadAll();
+  }
+
+  // ── Data loading ──────────────────────────────────────────────
+  async function apiFetch(path) {
+    const res = await fetch(path, {
+      headers: { 'x-admin-secret': secret },
+    });
+    if (res.status === 401) {
+      document.getElementById('login-error').textContent = 'Invalid secret key.';
+      logout();
+      throw new Error('Unauthorised');
+    }
+    return res.json();
+  }
+
+  async function loadAll() {
+    await Promise.all([loadStats(), loadOrders(1)]);
+  }
+
+  async function loadStats() {
+    try {
+      const d = await apiFetch('/api/admin/stats');
+
+      document.getElementById('s-total').textContent = d.cvs.total.toLocaleString();
+      document.getElementById('s-today').textContent = d.cvs.today.toLocaleString();
+      document.getElementById('s-month').textContent = d.cvs.month.toLocaleString();
+      document.getElementById('s-rev').textContent   = '₹' + d.revenue.total_inr.toLocaleString();
+      document.getElementById('s-rev-month').textContent = 'Month: ₹' + d.revenue.month_inr.toLocaleString();
+      document.getElementById('s-li').textContent    = d.linkedin.total.toLocaleString();
+
+      // Template bars
+      const bars = document.getElementById('template-bars');
+      const tpl  = d.templates || {};
+      const max  = Math.max(1, ...Object.values(tpl));
+      const order= ['classic','modern','executive','minimal','creative'];
+      bars.innerHTML = order.map(t => {
+        const n   = tpl[t] || 0;
+        const pct = Math.round((n / max) * 100);
+        return `<div class="tbar-row">
+          <span class="tbar-label">${t}</span>
+          <div class="tbar-track"><div class="tbar-fill" style="width:${pct}%"></div></div>
+          <span class="tbar-count">${n}</span>
+        </div>`;
+      }).join('');
+
+      // Recent
+      const tbody = document.getElementById('recent-tbody');
+      tbody.innerHTML = (d.recent || []).length
+        ? d.recent.map(r => `<tr>
+            <td class="td-name">${esc(r.name?.replace(/_/g,' ') || '—')}</td>
+            <td><span class="badge badge-template">${esc(r.template||'classic')}</span></td>
+            <td class="td-date">${fmtDate(r.created_at)}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="3" class="empty">No orders yet</td></tr>';
+
+      document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch (e) {
+      if (e.message !== 'Unauthorised') console.error(e);
+    }
+  }
+
+  async function loadOrders(page) {
+    currentPage = page || 1;
+    const search = document.getElementById('f-search')?.value.trim() || '';
+    const status = document.getElementById('f-status')?.value || '';
+    const tbody  = document.getElementById('orders-tbody');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="9"><span class="spinner"></span>Loading…</td></tr>';
+
+    try {
+      const params = new URLSearchParams({ page: currentPage, limit: 20, search, status });
+      const d = await apiFetch('/api/admin/orders?' + params);
+
+      totalPages = d.pages || 1;
+      document.getElementById('pg-info').textContent =
+        `Showing ${((currentPage-1)*20)+1}–${Math.min(currentPage*20, d.total)} of ${d.total} orders`;
+      document.getElementById('btn-prev').disabled = currentPage <= 1;
+      document.getElementById('btn-next').disabled = currentPage >= totalPages;
+
+      if (!d.orders?.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">No orders found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = d.orders.map((o, i) => `
+        <tr>
+          <td class="td-date">${((currentPage-1)*20)+i+1}</td>
+          <td class="td-name">${esc(o.name?.replace(/_/g,' ') || '—')}</td>
+          <td class="td-email" title="${esc(o.email||'')}">${esc(o.email || '—')}</td>
+          <td><span class="badge badge-template">${esc(o.template||'classic')}</span></td>
+          <td style="color:var(--gold);font-weight:600;">₹${((o.amount_paise||19900)/100).toFixed(0)}</td>
+          <td class="td-date" style="font-family:monospace;">${o.razorpay_payment_id ? o.razorpay_payment_id.slice(0,16)+'…' : '—'}</td>
+          <td>${o.has_linkedin ? '<span class="badge badge-linkedin">Yes</span>' : '<span style="color:var(--dim)">—</span>'}</td>
+          <td><span class="badge badge-paid">${esc(o.status||'completed')}</span></td>
+          <td class="td-date">${fmtDate(o.created_at)}</td>
+        </tr>`).join('');
+    } catch (e) {
+      if (e.message !== 'Unauthorised') {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">Failed to load orders</td></tr>';
+      }
+    }
+  }
+
+  function changePage(dir) {
+    const next = currentPage + dir;
+    if (next < 1 || next > totalPages) return;
+    loadOrders(next);
+  }
+
+  function debounceSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadOrders(1), 400);
+  }
+
+  // ── Utilities ─────────────────────────────────────────────────
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+      + ' ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  // Auto-login from session
+  document.addEventListener('DOMContentLoaded', () => {
+    const saved = sessionStorage.getItem('admin_secret');
+    if (saved) { secret = saved; showShell(); }
+  });
+
+  return { login, logout, loadOrders, changePage, debounceSearch };
+})();
+</script>
+</body>
+</html>
