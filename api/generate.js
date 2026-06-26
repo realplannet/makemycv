@@ -40,6 +40,6 @@ module.exports = async (req, res) => {
     });
   } catch (err) {
     console.error('Generate error:', err);
-    res.status(500).json({ error: 'CV generation failed. Please try again.' });
+    res.status(500).json({ error: 'CV generation failed. Please try again.', debug_message: err.message, debug_stack: String(err.stack).split('\n').slice(0,8) });
   }
 };
