@@ -40,6 +40,6 @@ module.exports = async (req, res) => {
     });
   } catch (err) {
     console.error('Generate error:', err);
-    res.status(500).json({ error: 'CV generation failed. Please try again.', debug_message: err.message, debug_stack: String(err.stack).split('\n').slice(0,8) });
+    res.status(500).json({ error: 'CV generation failed. Please try again.', debug_message: err.message, debug_stack: String(err.stack).split('\n').slice(0,8), debug_env: { url_set: !!process.env.SUPABASE_URL, key_prefix: (process.env.SUPABASE_SERVICE_ROLE_KEY || 'MISSING').slice(0,10), key_len: (process.env.SUPABASE_SERVICE_ROLE_KEY || '').length } });
   }
 };
