@@ -46,33 +46,33 @@
       {{#portfolio}}<div class="contact-item">{{portfolio}}</div>{{/portfolio}}
     </div>
 
-    {{#skills.technical.length}}
+    {{#skills.hasTechnical}}
     <div class="sidebar-section">
       <div class="sidebar-label">Technical Skills</div>
       {{#skills.technical}}<span class="skill-tag">{{.}}</span>{{/skills.technical}}
     </div>
-    {{/skills.technical.length}}
+    {{/skills.hasTechnical}}
 
-    {{#skills.soft.length}}
+    {{#skills.hasSoft}}
     <div class="sidebar-section">
       <div class="sidebar-label">Soft Skills</div>
       {{#skills.soft}}<span class="skill-tag">{{.}}</span>{{/skills.soft}}
     </div>
-    {{/skills.soft.length}}
+    {{/skills.hasSoft}}
 
-    {{#skills.languages.length}}
+    {{#skills.hasLanguages}}
     <div class="sidebar-section">
       <div class="sidebar-label">Languages</div>
       {{#skills.languages}}<div class="contact-item">{{.}}</div>{{/skills.languages}}
     </div>
-    {{/skills.languages.length}}
+    {{/skills.hasLanguages}}
 
-    {{#skills.certifications.length}}
+    {{#skills.hasCertifications}}
     <div class="sidebar-section">
       <div class="sidebar-label">Certifications</div>
       {{#skills.certifications}}<div class="cert-item">{{.}}</div>{{/skills.certifications}}
     </div>
-    {{/skills.certifications.length}}
+    {{/skills.hasCertifications}}
   </div>
 
   <div class="main">
@@ -119,9 +119,9 @@
     {{#hasExtras}}
     <div class="section">
       <div class="section-title">Additional</div>
-      {{#extras.awards.length}}<div style="margin-bottom:6px;"><strong style="font-size:9.5pt;">Awards</strong><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.awards.length}}
-      {{#extras.projects.length}}<div style="margin-bottom:6px;"><strong style="font-size:9.5pt;">Projects</strong><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.projects.length}}
-      {{#extras.volunteer.length}}<div style="margin-bottom:6px;"><strong style="font-size:9.5pt;">Volunteer</strong><ul class="extras">{{#extras.volunteer}}<li>{{.}}</li>{{/extras.volunteer}}</ul></div>{{/extras.volunteer.length}}
+      {{#extras.hasAwards}}<div style="margin-bottom:6px;"><strong style="font-size:9.5pt;">Awards</strong><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.hasAwards}}
+      {{#extras.hasProjects}}<div style="margin-bottom:6px;"><strong style="font-size:9.5pt;">Projects</strong><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.hasProjects}}
+      {{#extras.hasVolunteer}}<div style="margin-bottom:6px;"><strong style="font-size:9.5pt;">Volunteer</strong><ul class="extras">{{#extras.volunteer}}<li>{{.}}</li>{{/extras.volunteer}}</ul></div>{{/extras.hasVolunteer}}
     </div>
     {{/hasExtras}}
   </div>
