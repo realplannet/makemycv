@@ -79,19 +79,19 @@
 
   <div class="section">
     <div class="section-title">Skills</div>
-    {{#skills.technical.length}}<div class="skills-block"><strong>Technical</strong> &nbsp;{{skills.technical_str}}</div>{{/skills.technical.length}}
-    {{#skills.soft.length}}<div class="skills-block"><strong>Soft</strong> &nbsp;{{skills.soft_str}}</div>{{/skills.soft.length}}
-    {{#skills.certifications.length}}<div class="skills-block"><strong>Certifications</strong> &nbsp;{{skills.certifications_str}}</div>{{/skills.certifications.length}}
-    {{#skills.languages.length}}<div class="skills-block"><strong>Languages</strong> &nbsp;{{skills.languages_str}}</div>{{/skills.languages.length}}
+    {{#skills.hasTechnical}}<div class="skills-block"><strong>Technical</strong> &nbsp;{{skills.technical_str}}</div>{{/skills.hasTechnical}}
+    {{#skills.hasSoft}}<div class="skills-block"><strong>Soft</strong> &nbsp;{{skills.soft_str}}</div>{{/skills.hasSoft}}
+    {{#skills.hasCertifications}}<div class="skills-block"><strong>Certifications</strong> &nbsp;{{skills.certifications_str}}</div>{{/skills.hasCertifications}}
+    {{#skills.hasLanguages}}<div class="skills-block"><strong>Languages</strong> &nbsp;{{skills.languages_str}}</div>{{/skills.hasLanguages}}
   </div>
 
   {{#hasExtras}}
   <hr class="rule">
   <div class="section">
     <div class="section-title">More</div>
-    {{#extras.awards.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Awards</strong><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.awards.length}}
-    {{#extras.projects.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Projects</strong><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.projects.length}}
-    {{#extras.volunteer.length}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Volunteer</strong><ul class="extras">{{#extras.volunteer}}<li>{{.}}</li>{{/extras.volunteer}}</ul></div>{{/extras.volunteer.length}}
+    {{#extras.hasAwards}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Awards</strong><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.hasAwards}}
+    {{#extras.hasProjects}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Projects</strong><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.hasProjects}}
+    {{#extras.hasVolunteer}}<div style="margin-bottom:5px;"><strong style="font-size:9.5pt;">Volunteer</strong><ul class="extras">{{#extras.volunteer}}<li>{{.}}</li>{{/extras.volunteer}}</ul></div>{{/extras.hasVolunteer}}
   </div>
   {{/hasExtras}}
 </body>
