@@ -4,52 +4,71 @@
 <meta charset="UTF-8">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Calibri', 'Helvetica Neue', Arial, sans-serif; font-size: 10.3pt; color: #262626; background: #fff; line-height: 1.45; padding: 16mm 18mm; }
+  body { font-family: 'Arial', 'Helvetica Neue', sans-serif; font-size: 10.3pt; color: #1c2b3a; background: #fff; line-height: 1.45; }
 
-  .header { margin-bottom: 4px; }
-  .name { font-size: 23pt; font-weight: 700; color: #15334f; letter-spacing: 0.01em; }
-  .title { font-size: 11.5pt; color: #2b6cb0; font-weight: 600; margin-top: 2px; }
-  .contact { margin-top: 7px; font-size: 9.3pt; color: #444; }
-  .contact span { margin-right: 12px; padding-right: 12px; border-right: 1px solid #ccc; }
+  /* ---- Header banner: full-width navy block, edge-to-edge ---- */
+  .banner { background: #1a3a5c; padding: 14mm 16mm 10mm; }
+  .name { font-size: 27pt; font-weight: 700; color: #ffffff; letter-spacing: 0.01em; }
+  .title { font-size: 12pt; color: #bfe3ec; font-weight: 700; margin-top: 3px; }
+  .contact { margin-top: 9px; font-size: 9.2pt; color: #e2e8f0; }
+  .contact span { margin-right: 10px; padding-right: 10px; border-right: 1px solid rgba(255,255,255,0.3); }
   .contact span:last-child { border-right: none; padding-right: 0; margin-right: 0; }
 
-  hr.divider { border: none; border-top: 2.5px solid #15334f; margin: 10px 0 14px; }
+  /* ---- Keyword strip: thin teal bar directly under the banner ---- */
+  .keyword-strip { background: #0e7490; color: #fff; font-size: 8.6pt; font-weight: 700; padding: 5px 16mm; }
 
-  .section { margin-bottom: 15px; }
+  .body { padding: 9mm 16mm 14mm; }
+
+  .section { margin-bottom: 14px; }
   .section-title {
-    font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
-    color: #15334f; padding-bottom: 4px; border-bottom: 1.5px solid #c7d8e8; margin-bottom: 9px;
+    font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: #1a3a5c; padding-bottom: 4px; border-bottom: 2px solid #0e7490; margin-bottom: 9px;
   }
 
-  .summary { font-size: 10.3pt; line-height: 1.55; color: #333; text-align: justify; }
+  .summary { font-size: 10.3pt; line-height: 1.55; color: #1c2b3a; text-align: justify; }
+
+  /* ---- Core competencies: 3-col checkmark grid ---- */
+  .competency-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px 10px; }
+  .competency-item { background: #e8edf2; font-size: 9.4pt; padding: 6px 9px; color: #1c2b3a; }
+  .competency-item .check { color: #0e7490; font-weight: 700; margin-right: 4px; }
 
   .job { margin-bottom: 11px; }
   .job:last-child { margin-bottom: 0; }
   .job-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px; }
   .job-title-line { font-size: 10.5pt; }
-  .job-title { font-weight: 700; color: #15334f; }
+  .job-title { font-weight: 700; color: #1a3a5c; }
   .job-sep { color: #9aa5af; margin: 0 6px; }
-  .job-company { font-weight: 600; color: #2b6cb0; }
-  .job-dates { font-size: 9.3pt; font-style: italic; color: #6b7280; white-space: nowrap; }
+  .job-company { font-weight: 700; color: #0e7490; }
+  .job-dates { font-size: 9.2pt; font-style: italic; color: #4a5568; white-space: nowrap; }
   .bullets { margin: 5px 0 0 16px; }
-  .bullets li { margin-bottom: 3px; font-size: 9.8pt; color: #333; }
+  .bullets li { margin-bottom: 3px; font-size: 9.8pt; color: #1c2b3a; }
 
-  table.striped { width: 100%; border-collapse: collapse; }
-  table.striped tr:nth-child(odd)  { background: #eaf1f9; }
-  table.striped tr:nth-child(even) { background: #ffffff; }
-  table.striped td { padding: 6px 10px; font-size: 9.8pt; vertical-align: top; }
-  table.striped td.label { font-weight: 700; color: #15334f; width: 28%; white-space: nowrap; }
-  table.striped td.value { color: #333; }
+  /* ---- Education: clean tab-separated rows ---- */
+  .edu-row { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .edu-row:last-child { margin-bottom: 0; }
+  .edu-degree { font-weight: 700; color: #1a3a5c; font-size: 10pt; }
+  .edu-meta { font-size: 9.2pt; font-style: italic; color: #4a5568; white-space: nowrap; }
+
+  table.skills-table { width: 100%; border-collapse: collapse; }
+  table.skills-table tr:nth-child(odd)  { background: #e8edf2; }
+  table.skills-table tr:nth-child(even) { background: #ffffff; }
+  table.skills-table td { padding: 6px 10px; font-size: 9.8pt; vertical-align: top; }
+  table.skills-table td.label { font-weight: 700; color: #1a3a5c; width: 22%; white-space: nowrap; }
+  table.skills-table td.value { color: #1c2b3a; }
+
+  /* ---- Certifications: two-column badge pills ---- */
+  .badge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+  .badge-item { background: #e8edf2; font-size: 9.6pt; font-weight: 700; padding: 6px 9px; color: #1c2b3a; }
 
   .extras-block { margin-bottom: 6px; }
   .extras-block:last-child { margin-bottom: 0; }
-  .extras-label { font-weight: 700; color: #15334f; font-size: 9.8pt; }
+  .extras-label { font-weight: 700; color: #1a3a5c; font-size: 9.8pt; }
   .extras { margin: 3px 0 0 16px; }
-  .extras li { font-size: 9.8pt; margin-bottom: 2px; color: #333; }
+  .extras li { font-size: 9.8pt; margin-bottom: 2px; color: #1c2b3a; }
 </style>
 </head>
 <body>
-  <div class="header">
+  <div class="banner">
     <div class="name">{{name}}</div>
     <div class="title">{{title}}</div>
     <div class="contact">
@@ -60,7 +79,12 @@
       {{#portfolio}}<span>{{portfolio}}</span>{{/portfolio}}
     </div>
   </div>
-  <hr class="divider">
+
+  {{#skills.hasKeywords}}
+  <div class="keyword-strip">{{skills.keywords_str}}</div>
+  {{/skills.hasKeywords}}
+
+  <div class="body">
 
   {{#summary}}
   <div class="section">
@@ -68,6 +92,15 @@
     <div class="summary">{{summary}}</div>
   </div>
   {{/summary}}
+
+  {{#skills.hasCompetencies}}
+  <div class="section">
+    <div class="section-title">Core Competencies</div>
+    <div class="competency-grid">
+      {{#skills.competencies}}<div class="competency-item"><span class="check">&check;</span>{{.}}</div>{{/skills.competencies}}
+    </div>
+  </div>
+  {{/skills.hasCompetencies}}
 
   {{#experience.length}}
   <div class="section">
@@ -91,26 +124,33 @@
   {{#education.length}}
   <div class="section">
     <div class="section-title">Education</div>
-    <table class="striped">
-      {{#education}}
-      <tr>
-        <td class="label">{{degree}}</td>
-        <td class="value">{{institution}}{{#grade}} &middot; {{grade}}{{/grade}} ({{year}})</td>
-      </tr>
-      {{/education}}
-    </table>
+    {{#education}}
+    <div class="edu-row">
+      <div class="edu-degree">{{degree}}</div>
+      <div class="edu-meta">{{institution}}{{#grade}} &middot; {{grade}}{{/grade}} ({{year}})</div>
+    </div>
+    {{/education}}
   </div>
   {{/education.length}}
 
+  {{#skills.hasTechnical}}
   <div class="section">
-    <div class="section-title">Skills</div>
-    <table class="striped">
-      {{#skills.hasTechnical}}<tr><td class="label">Technical</td><td class="value">{{skills.technical_str}}</td></tr>{{/skills.hasTechnical}}
-      {{#skills.hasSoft}}<tr><td class="label">Soft Skills</td><td class="value">{{skills.soft_str}}</td></tr>{{/skills.hasSoft}}
+    <div class="section-title">Technical Skills</div>
+    <table class="skills-table">
+      <tr><td class="label">Technical</td><td class="value">{{skills.technical_str}}</td></tr>
       {{#skills.hasLanguages}}<tr><td class="label">Languages</td><td class="value">{{skills.languages_str}}</td></tr>{{/skills.hasLanguages}}
-      {{#skills.hasCertifications}}<tr><td class="label">Certifications</td><td class="value">{{skills.certifications_str}}</td></tr>{{/skills.hasCertifications}}
     </table>
   </div>
+  {{/skills.hasTechnical}}
+
+  {{#skills.hasCertifications}}
+  <div class="section">
+    <div class="section-title">Certifications</div>
+    <div class="badge-grid">
+      {{#skills.certifications}}<div class="badge-item">{{.}}</div>{{/skills.certifications}}
+    </div>
+  </div>
+  {{/skills.hasCertifications}}
 
   {{#hasExtras}}
   <div class="section">
@@ -120,5 +160,7 @@
     {{#extras.hasVolunteer}}<div class="extras-block"><span class="extras-label">Volunteer</span><ul class="extras">{{#extras.volunteer}}<li>{{.}}</li>{{/extras.volunteer}}</ul></div>{{/extras.hasVolunteer}}
   </div>
   {{/hasExtras}}
+
+  </div>
 </body>
 </html>
