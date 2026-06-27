@@ -81,18 +81,18 @@
 
   <div class="section">
     <div class="section-title">Competencies</div>
-    {{#skills.technical.length}}<div class="skills-row"><span class="skills-label">Technical: </span>{{skills.technical_str}}</div>{{/skills.technical.length}}
-    {{#skills.soft.length}}<div class="skills-row"><span class="skills-label">Leadership: </span>{{skills.soft_str}}</div>{{/skills.soft.length}}
-    {{#skills.certifications.length}}<div class="skills-row"><span class="skills-label">Credentials: </span>{{skills.certifications_str}}</div>{{/skills.certifications.length}}
-    {{#skills.languages.length}}<div class="skills-row"><span class="skills-label">Languages: </span>{{skills.languages_str}}</div>{{/skills.languages.length}}
+    {{#skills.hasTechnical}}<div class="skills-row"><span class="skills-label">Technical: </span>{{skills.technical_str}}</div>{{/skills.hasTechnical}}
+    {{#skills.hasSoft}}<div class="skills-row"><span class="skills-label">Leadership: </span>{{skills.soft_str}}</div>{{/skills.hasSoft}}
+    {{#skills.hasCertifications}}<div class="skills-row"><span class="skills-label">Credentials: </span>{{skills.certifications_str}}</div>{{/skills.hasCertifications}}
+    {{#skills.hasLanguages}}<div class="skills-row"><span class="skills-label">Languages: </span>{{skills.languages_str}}</div>{{/skills.hasLanguages}}
   </div>
 
   {{#hasExtras}}
   <hr class="thin-rule">
   <div class="section">
     <div class="section-title">Additional Distinctions</div>
-    {{#extras.awards.length}}<div style="margin-bottom:5px;"><span class="skills-label">Awards: </span><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.awards.length}}
-    {{#extras.projects.length}}<div style="margin-bottom:5px;"><span class="skills-label">Projects: </span><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.projects.length}}
+    {{#extras.hasAwards}}<div style="margin-bottom:5px;"><span class="skills-label">Awards: </span><ul class="extras">{{#extras.awards}}<li>{{.}}</li>{{/extras.awards}}</ul></div>{{/extras.hasAwards}}
+    {{#extras.hasProjects}}<div style="margin-bottom:5px;"><span class="skills-label">Projects: </span><ul class="extras">{{#extras.projects}}<li>{{.}}</li>{{/extras.projects}}</ul></div>{{/extras.hasProjects}}
   </div>
   {{/hasExtras}}
 </body>
