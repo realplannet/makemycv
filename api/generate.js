@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { sessionId, template = 'classic', cvData } = req.body;
+    const { sessionId, template = 'classic', cvData, razorpayOrderId, razorpayPaymentId } = req.body;
     if (!sessionId || !cvData) {
       return res.status(400).json({ error: 'sessionId and cvData are required' });
     }
@@ -29,7 +29,12 @@ module.exports = async (req, res) => {
     const { pdfPath, docxPath } = await uploadFiles(fileId, safeName, pdfBuffer, docxBuffer);
 
     // 4. Save session record
-    await saveSession(sessionId, fileId, safeName, pdfPath, docxPath);
+    await saveSession(sessionId, fileId, safeName, pdfPath, docxPath, {
+      email: enhancedCV.email || null,
+      template,
+      razorpayOrderId: razorpayOrderId || null,
+      razorpayPaymentId: razorpayPaymentId || null,
+    });
 
     res.json({
       success:      true,
