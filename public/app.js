@@ -476,7 +476,7 @@ const App = (() => {
         currency: 'INR',
         name: 'MakeMyCV',
         description: 'Professional CV — PDF + Word',
-        image: '../uploads/makemycv-mark.svg',
+        image: '/assets/makemycv-mark.svg',
         order_id: order.orderId,
         handler: async (response) => {
           await verifyAndGenerate(response, order.orderId);
@@ -528,7 +528,7 @@ const App = (() => {
     const genRes = await fetch(`${API_BASE}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, template: selectedTemplate, cvData: cvPayload }),
+      body: JSON.stringify({ sessionId, template: selectedTemplate, cvData: cvPayload, razorpayOrderId: orderId, razorpayPaymentId: payment.razorpay_payment_id }),
     });
     const genData = await genRes.json();
     if (!genRes.ok) throw new Error(genData.error || 'CV generation failed');
