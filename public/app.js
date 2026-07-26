@@ -508,6 +508,21 @@ const App = (() => {
     }
   }
 
+  // Template screen's "← Back" needs to know which flow got it there:
+  // scratch flow came from the last form step, upload flow came from Details.
+  // (Previously this button called goToStep(6) — an out-of-range index for a
+  // 6-item STEPS array, and goToStep() never calls showScreen() anyway — so
+  // it silently did nothing and stranded scratch-flow users on this screen.)
+  function backFromTemplate() {
+    if (flowMode === 'upload') {
+      showScreen('screen-details');
+    } else {
+      currentStep = STEPS.length - 1;
+      showScreen('screen-form');
+      renderStep();
+    }
+  }
+
   // ── Details screen (upload flow) ───────────────────────────────
   function renderGuidedBlocks() {
     const container = document.getElementById('guided-blocks');
@@ -717,7 +732,7 @@ const App = (() => {
         amount: order.amount,
         currency: 'INR',
         name: 'MakeMyCV',
-        description: 'Professional CV — PDF + Word',
+        description: 'Professional CV — Word (.docx)',
         image: '/assets/makemycv-mark.svg',
         order_id: order.orderId,
         handler: async (response) => {
@@ -1079,7 +1094,7 @@ const App = (() => {
   // ── Public API ─────────────────────────────────────────────────
   return {
     showLanding, showScreen, startFlow,
-    nextStep, prevStep, goToStep,
+    nextStep, prevStep, goToStep, backFromTemplate,
     addJob, removeJob, addBullet, removeBullet, toggleCurrent,
     addEdu, removeEdu,
     removeTag,
