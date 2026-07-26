@@ -409,15 +409,58 @@ input, textarea, select { font-family: var(--font-body); }
 
 /* ─── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .nav { padding: 14px 16px; }
-  .hero { padding: 50px 16px 40px; }
+  /* Tighter, calmer rhythm on mobile — less padding overall, more
+     intentional spacing between sections instead of one big scroll. */
+  .nav { padding: 12px 16px; }
+  .nav-logo img { height: 22px; }
+
+  .hero { padding: 44px 16px 36px; }
+  .hero-badge { margin-bottom: 20px; }
+  .hero-title { margin-bottom: 14px; }
+  .hero-sub { font-size: 15px; margin-bottom: 26px; }
+
+  /* Stack CTAs full-width — easier to hit with a thumb, and reads as one
+     clear next step instead of two competing buttons side by side. */
+  .hero-ctas { flex-direction: column; gap: 10px; width: 100%; }
+  .hero-ctas .btn-large { width: 100%; }
+  .hero-note { margin-top: 4px; }
+
+  .how-it-works { padding: 44px 16px; }
   .form-row { grid-template-columns: 1fr; }
-  .steps { flex-direction: column; }
+  .steps { flex-direction: column; gap: 26px; }
+  .step { max-width: none; }
   .step-arrow { display: none; }
-  .template-cards { gap: 10px; }
-  .tcard { width: 130px; }
+
+  /* 5 template cards used to wrap awkwardly across 2–3 uneven rows.
+     Horizontal swipe with snap is the standard mobile pattern for this —
+     cards peek at the edge so it reads as scrollable at a glance. */
+  .templates-preview { padding: 44px 0 44px 16px; }
+  .template-cards {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 16px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .template-cards::-webkit-scrollbar { display: none; }
+  .tcard { width: 126px; flex-shrink: 0; scroll-snap-align: start; }
+
+  .pricing { padding: 44px 16px; }
+  .price-card { padding: 28px 20px; border-radius: 14px; }
+  .price-amount { font-size: 44px; }
+
+  .faq { padding: 44px 16px; }
+  .footer { padding: 32px 16px; }
+
   .download-btns { flex-direction: column; }
   .trust-row { flex-direction: column; align-items: center; gap: 6px; }
+
+  /* iOS Safari auto-zooms on focusing any input under 16px — this was
+     silently making every form field zoom the page in on mobile. */
+  .form-input, .form-textarea, .form-select { font-size: 16px; }
 }
 
 /* ─── Upload Screen ────────────────────────────────────────────── */
