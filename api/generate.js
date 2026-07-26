@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { generateCV }  = require('../lib/ai');
+const { generateCVFromData, generateCVFromUpload } = require('../lib/ai');
 const { renderPDF }   = require('../lib/pdf');
 const { renderDOCX }  = require('../lib/docx');
 const { uploadFiles, saveSession } = require('../lib/supabase');
@@ -9,13 +9,35 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { sessionId, template = 'classic', cvData, razorpayOrderId, razorpayPaymentId } = req.body;
-    if (!sessionId || !cvData) {
-      return res.status(400).json({ error: 'sessionId and cvData are required' });
+    const {
+      sessionId,
+      template = 'executive',
+      mode = 'scratch',       // 'scratch' (guided form) | 'upload' (uploaded CV file)
+      cvData,                 // scratch mode
+      uploadedFile,           // upload mode: { filename, type, data(base64) } | null
+      notes,                  // upload mode: free text
+      guidedAdds,             // upload mode: { experience:[], education:[], certifications:[], projects:[] }
+      contact,                // upload mode: { email, phone }
+      razorpayOrderId,
+      razorpayPaymentId,
+    } = req.body;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: 'sessionId is required' });
     }
 
-    // 1. AI enhancement
-    const enhancedCV = await generateCV(cvData);
+    // 1. AI enhancement — read straight from the uploaded file in upload mode,
+    //    no separate pre-payment extraction/parsing step.
+    let enhancedCV;
+    if (mode === 'upload') {
+      if (!contact?.email || !contact?.phone) {
+        return res.status(400).json({ error: 'contact email and phone are required' });
+      }
+      enhancedCV = await generateCVFromUpload({ uploadedFile, notes, guidedAdds, contact });
+    } else {
+      if (!cvData) return res.status(400).json({ error: 'cvData is required for scratch mode' });
+      enhancedCV = await generateCVFromData(cvData);
+    }
 
     // 2. Generate PDF + DOCX in parallel
     const [pdfBuffer, docxBuffer] = await Promise.all([
@@ -30,7 +52,7 @@ module.exports = async (req, res) => {
 
     // 4. Save session record
     await saveSession(sessionId, fileId, safeName, pdfPath, docxPath, {
-      email: enhancedCV.email || null,
+      email: contact?.email || enhancedCV.email || null,
       template,
       razorpayOrderId: razorpayOrderId || null,
       razorpayPaymentId: razorpayPaymentId || null,

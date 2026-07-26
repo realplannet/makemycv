@@ -467,3 +467,15 @@ input, textarea, select { font-family: var(--font-body); }
   font-size: 14px; color: #e05a5a; margin-bottom: 20px;
 }
 .upload-actions { display: flex; flex-direction: column; gap: 0; }
+
+/* ─── Details Screen — quick-add chips ─────────────────────────── */
+.quick-add-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 4px; }
+.btn-quick-add {
+  background: none; border: 1px dashed var(--border-gold);
+  color: var(--gold); font-family: var(--font-body); font-size: 13px;
+  padding: 9px 16px; border-radius: 20px; cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.btn-quick-add:hover { background: var(--gold-dim); border-color: var(--gold); }
+#guided-blocks { margin-top: 16px; }
+#guided-blocks .repeat-block { margin-bottom: 12px; }

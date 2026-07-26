@@ -51,8 +51,8 @@
     "api/admin/stats.js": {
       "maxDuration": 10
     },
-    "api/parse.js": {
-      "maxDuration": 30
+    "api/lead.js": {
+      "maxDuration": 10
     }
   }
 }

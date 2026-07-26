@@ -1,9 +1,11 @@
 /* ─────────────────────────────────────────────────────────────────
    MakeMyCV — Frontend SPA
-   Screens: landing → form (6 steps) → template → payment → generating → download
+   Two entry flows:
+     • Upload   → upload → details (guided free-text + quick-add) → template → payment → generating → download
+     • Scratch  → form (6 steps) → template → payment → generating → download
 ───────────────────────────────────────────────────────────────── */
 
-const API_BASE = '';  // same origin — Vercel serves frontend + API together // change to your backend URL in production
+const API_BASE = '';  // same origin — Vercel serves frontend + API together
 
 const STEPS = [
   { id: 'personal',  label: 'Personal'  },
@@ -14,12 +16,50 @@ const STEPS = [
   { id: 'extras',    label: 'Extras'    },
 ];
 
+// Fields shown per guided quick-add type on the details screen — only the
+// fields relevant to that type are ever shown, not a full form.
+const GUIDED_FIELDS = {
+  experience: [
+    { key: 'title',   label: 'Job Title',    placeholder: 'Facilities Manager' },
+    { key: 'company', label: 'Company',      placeholder: 'Company Name' },
+    { key: 'start',   label: 'Start Date',   placeholder: 'Jan 2024' },
+    { key: 'end',     label: 'End Date',     placeholder: 'Present' },
+    { key: 'bullet',  label: 'What did you do?', placeholder: 'Managed a portfolio of 20+ units…' },
+  ],
+  education: [
+    { key: 'institution', label: 'Institution',           placeholder: 'University / College' },
+    { key: 'degree',      label: 'Degree / Qualification', placeholder: 'MBA' },
+    { key: 'year',        label: 'Year',                   placeholder: '2024' },
+  ],
+  certification: [
+    { key: 'name', label: 'Certification / Skill', placeholder: 'NEBOSH IGC' },
+  ],
+  project: [
+    { key: 'description', label: 'Project / Award', placeholder: 'Led a heritage building retrofit — full MEP overhaul' },
+  ],
+};
+const GUIDED_LABELS = { experience: 'Experience', education: 'Education', certification: 'Certification / Skill', project: 'Project / Award' };
+const GUIDED_PAYLOAD_KEY = { experience: 'experience', education: 'education', certification: 'certifications', project: 'projects' };
+
+// Zoho CRM Web-to-Lead — MakeMyCV_webform. These hidden tokens are the ones
+// Zoho embeds in any public webform snippet (not secrets — same values
+// anyone using this form on a real page would ship in their HTML).
+// Submitted straight from the browser to Zoho, same as Zoho's own reference
+// implementation — their endpoint is built to accept cross-origin form posts.
+const ZOHO_WEBFORM = {
+  url: 'https://crm.zoho.com/crm/WebToLeadForm',
+  xnQsjsdp: '6da38ce683090586cee3d83e86eaf823064e7c7d1c9da3161d03f05e28c7654b',
+  xmIwtLD: '5e049436889b0e76806e9fe4235bb7baa8a313db17b19c1746af2ce56b9c94a76ad1d2350bf95fff1f2acb967f233a2e',
+  actionType: 'TGVhZHM=',
+};
+
 const App = (() => {
   // ── State ──────────────────────────────────────────────────────
   let currentStep = 0;
-  let selectedTemplate = 'classic';
+  let selectedTemplate = 'executive';
   let sessionId = null;
   let fileId = null;
+  let flowMode = 'scratch'; // 'scratch' | 'upload'
   let cvData = {
     personal: {},
     summary: '',
@@ -29,19 +69,46 @@ const App = (() => {
     extras: { awards: [], projects: [], volunteer: [], publications: [] },
   };
 
+  // Upload-flow state
+  let uploadFileData = null;   // { filename, type, data(base64) } — set once file is read
+  let detailsName = '';
+  let detailsEmail = '';
+  let detailsPhone = '';
+  let detailsNotes = '';
+  let guidedAdds = [];         // [{ id, type, values:{} }]
+  let guidedSeq = 0;
+  let currentStage = '';       // tracked client-side, no network call — used by sendFinalLead()
+  let leadFinalized = false;   // guards against double-send (completed vs abandoned)
+
   // Tags state keyed by field id
   const tagState = {};
+
+  // ── Analytics ──────────────────────────────────────────────────
+  // Fires GA4 events for every screen transition (funnel/drop-off tracking)
+  // plus explicit milestone events. Safe no-op if gtag hasn't loaded.
+  function trackEvent(name, params = {}) {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', name, params);
+      } else {
+        window.dataLayer.push({ event: name, ...params });
+      }
+    } catch (_) {}
+  }
 
   // ── Screen management ──────────────────────────────────────────
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo(0, 0);
+    trackEvent('screen_view', { screen_name: id, flow_mode: flowMode });
   }
 
   function showLanding() { showScreen('screen-landing'); }
 
   function startFlow(mode) {
+    flowMode = 'scratch';
     sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     loadDraft();
     currentStep = 0;
@@ -402,7 +469,7 @@ const App = (() => {
     return null;
   }
 
-  // ── Step navigation ────────────────────────────────────────────
+  // ── Step navigation (scratch flow) ─────────────────────────────
   const collectors = {
     personal:   collectPersonal,
     summary:    collectSummary,
@@ -441,17 +508,190 @@ const App = (() => {
     }
   }
 
+  // ── Details screen (upload flow) ───────────────────────────────
+  function renderGuidedBlocks() {
+    const container = document.getElementById('guided-blocks');
+    if (!container) return;
+    container.innerHTML = guidedAdds.map(block => `
+      <div class="repeat-block" id="guided-${block.id}">
+        <div class="repeat-block-header">
+          <span class="repeat-block-title">${GUIDED_LABELS[block.type]}</span>
+          <button class="btn-remove-block" onclick="App.removeGuided(${block.id})">×</button>
+        </div>
+        ${GUIDED_FIELDS[block.type].map(f => `
+          <div class="field-group">
+            <label class="field-label">${f.label}</label>
+            <input class="form-input" id="guided-${block.id}-${f.key}" placeholder="${f.placeholder}" value="${esc(block.values[f.key]||'')}" />
+          </div>`).join('')}
+      </div>`).join('');
+  }
+
+  function addGuided(type) {
+    guidedSeq++;
+    guidedAdds.push({ id: guidedSeq, type, values: {} });
+    renderGuidedBlocks();
+    trackEvent('guided_add_used', { add_type: type });
+  }
+
+  function removeGuided(id) {
+    collectGuided();
+    guidedAdds = guidedAdds.filter(b => b.id !== id);
+    renderGuidedBlocks();
+  }
+
+  function collectGuided() {
+    guidedAdds.forEach(block => {
+      GUIDED_FIELDS[block.type].forEach(f => {
+        block.values[f.key] = val(`guided-${block.id}-${f.key}`);
+      });
+    });
+  }
+
+  function buildGuidedPayload() {
+    collectGuided();
+    const payload = { experience: [], education: [], certifications: [], projects: [] };
+    guidedAdds.forEach(block => {
+      const key = GUIDED_PAYLOAD_KEY[block.type];
+      payload[key].push(block.values);
+    });
+    return payload;
+  }
+
+  function detailsContinue() {
+    detailsName  = val('d-name');
+    detailsEmail = val('d-email');
+    detailsPhone = val('d-phone');
+    detailsNotes = val('d-notes');
+    collectGuided();
+
+    if (!detailsName) {
+      showToast('Please enter your full name.', 'error');
+      return;
+    }
+    if (!detailsEmail || !detailsEmail.includes('@')) {
+      showToast('Please enter a valid email address.', 'error');
+      return;
+    }
+    if (!detailsPhone) {
+      showToast('Please enter a phone number.', 'error');
+      return;
+    }
+
+    pushLead('details_submitted');
+    trackEvent('lead_captured');
+    trackEvent('details_submitted', { has_notes: !!detailsNotes, guided_add_count: guidedAdds.length });
+
+    showScreen('screen-template');
+  }
+
+  /**
+   * Checkpoint ping — updates our own Supabase record so we always have
+   * the furthest stage on file, but does NOT push to Zoho. Zoho only
+   * gets ONE submission per person (see sendFinalLead) — Zoho's Free-plan
+   * dedup check flags repeat submissions from the same email as manual-
+   * approval duplicates, so we deliberately don't hit it more than once.
+   */
+  function pushLead(stage) {
+    currentStage = stage;
+    if (!detailsEmail) return; // upload-flow only — scratch flow has no lead capture point yet
+    fetch(`${API_BASE}/api/lead`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId, stage, final: false,
+        name: detailsName, email: detailsEmail, phone: detailsPhone, notes: detailsNotes,
+        template: selectedTemplate,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  const STAGE_LABELS = {
+    details_submitted:  'Left at: Details Submitted',
+    template_selected:  'Left at: Template Selected',
+    payment_initiated:  'Left at: Payment Initiated (did not complete)',
+    payment_completed:  'Completed',
+  };
+
+  /**
+   * The ONE submission that reaches Zoho — fired either:
+   *   • immediately on payment_completed ("Completed"), or
+   *   • via sendBeacon the moment the tab is hidden/closed before that,
+   *     carrying whatever the last-known stage was.
+   * sendBeacon (not fetch) because it's specifically designed to survive
+   * the page unloading — fetch(keepalive) is not reliably delivered on
+   * tab close in every browser. Posts straight to Zoho's Web-to-Lead
+   * endpoint from the browser (matches Zoho's own reference snippet),
+   * plus a copy to our own /api/lead so Supabase has the same final record.
+   */
+  function sendFinalLead(stage) {
+    if (!detailsEmail || leadFinalized) return;
+    leadFinalized = true;
+
+    // — Zoho —
+    const fd = new FormData();
+    fd.append('xnQsjsdp', ZOHO_WEBFORM.xnQsjsdp);
+    fd.append('zc_gad', '');
+    fd.append('xmIwtLD', ZOHO_WEBFORM.xmIwtLD);
+    fd.append('actionType', ZOHO_WEBFORM.actionType);
+    fd.append('returnURL', 'null');
+    fd.append('aG9uZXlwb3Q', ''); // honeypot — must stay empty
+    fd.append('Company', 'Make My CV — Individual Lead'); // required field; we don't collect a real company
+    fd.append('Last Name', detailsName || 'Unknown');
+    fd.append('Email', detailsEmail);
+    fd.append('Phone', detailsPhone);
+    fd.append('Description', [
+      'Make My CV — Website Lead',
+      `Stage: ${STAGE_LABELS[stage] || stage}`,
+      `Template: ${selectedTemplate}`,
+      detailsNotes ? `Notes: ${detailsNotes}` : null,
+      `Session: ${sessionId}`,
+    ].filter(Boolean).join('\n'));
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(ZOHO_WEBFORM.url, fd);
+    } else {
+      fetch(ZOHO_WEBFORM.url, { method: 'POST', body: fd, mode: 'no-cors', keepalive: true }).catch(() => {});
+    }
+
+    // — Supabase (own record, same final stage) —
+    const payload = JSON.stringify({
+      sessionId, stage, final: true,
+      name: detailsName, email: detailsEmail, phone: detailsPhone, notes: detailsNotes,
+      template: selectedTemplate,
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(`${API_BASE}/api/lead`, new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch(`${API_BASE}/api/lead`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true,
+      }).catch(() => {});
+    }
+  }
+
+  // Catches abandonment at any point after details are captured — fires
+  // sendFinalLead with whatever stage was last reached. No-ops once
+  // leadFinalized is true (i.e. payment already completed).
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') sendFinalLead(currentStage || 'details_submitted');
+  });
+  window.addEventListener('pagehide', () => {
+    sendFinalLead(currentStage || 'details_submitted');
+  });
+
   // ── Template selection ─────────────────────────────────────────
   function selectTemplate(name) {
     selectedTemplate = name;
     document.querySelectorAll('.tpick').forEach(el => el.classList.remove('selected'));
     document.querySelector(`[data-template="${name}"]`)?.classList.add('selected');
+    trackEvent('template_selected', { template: name });
   }
 
   function proceedToPayment() {
     if (!selectedTemplate) { showToast('Please select a template.', 'error'); return; }
     document.getElementById('payment-template-name').textContent =
       selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1);
+    pushLead('template_selected');
     showScreen('screen-payment');
   }
 
@@ -460,6 +700,8 @@ const App = (() => {
     const btn = document.getElementById('btn-pay');
     btn.disabled = true;
     btn.textContent = 'Creating order…';
+    trackEvent('payment_initiated', { template: selectedTemplate, flow_mode: flowMode });
+    pushLead('payment_initiated');
 
     try {
       const res = await fetch(`${API_BASE}/api/payment/create`, {
@@ -482,8 +724,8 @@ const App = (() => {
           await verifyAndGenerate(response, order.orderId);
         },
         prefill: {
-          email: cvData.personal.email || '',
-          contact: cvData.personal.phone || '',
+          email: flowMode === 'upload' ? detailsEmail : (cvData.personal.email || ''),
+          contact: flowMode === 'upload' ? detailsPhone : (cvData.personal.phone || ''),
           name: cvData.personal.name || '',
         },
         theme: { color: '#c9a84c' },
@@ -491,6 +733,7 @@ const App = (() => {
           ondismiss: () => {
             btn.disabled = false;
             btn.textContent = 'Pay ₹199 Securely';
+            trackEvent('payment_cancelled');
           }
         }
       };
@@ -518,20 +761,39 @@ const App = (() => {
     });
     const verifyData = await verifyRes.json();
     if (!verifyRes.ok) throw new Error(verifyData.error || 'Payment verification failed');
+    trackEvent('payment_completed', { template: selectedTemplate, flow_mode: flowMode });
+    sendFinalLead('payment_completed'); // the one Zoho-bound submission — "Completed"
 
     // 2. Show generation screen
     showScreen('screen-generating');
     startGenerationAnimation();
 
-    // 3. Generate CV
-    const cvPayload = buildCVPayload();
+    // 3. Generate CV — payload shape depends on which flow the candidate took.
+    //    Upload flow sends the raw file straight to Claude (see lib/ai.js);
+    //    nothing is pre-extracted client- or server-side before this point.
+    const body = flowMode === 'upload'
+      ? {
+          sessionId, template: selectedTemplate, mode: 'upload',
+          uploadedFile: uploadFileData,
+          notes: detailsNotes,
+          guidedAdds: buildGuidedPayload(),
+          contact: { email: detailsEmail, phone: detailsPhone },
+          razorpayOrderId: orderId, razorpayPaymentId: payment.razorpay_payment_id,
+        }
+      : {
+          sessionId, template: selectedTemplate, mode: 'scratch',
+          cvData: buildCVPayload(),
+          razorpayOrderId: orderId, razorpayPaymentId: payment.razorpay_payment_id,
+        };
+
     const genRes = await fetch(`${API_BASE}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, template: selectedTemplate, cvData: cvPayload, razorpayOrderId: orderId, razorpayPaymentId: payment.razorpay_payment_id }),
+      body: JSON.stringify(body),
     });
     const genData = await genRes.json();
     if (!genRes.ok) throw new Error(genData.error || 'CV generation failed');
+    trackEvent('cv_generated', { flow_mode: flowMode, template: selectedTemplate });
 
     fileId = genData.fileId;
 
@@ -611,6 +873,10 @@ const App = (() => {
     clearDraft();
   }
 
+  function trackDownload(type) {
+    trackEvent('download_clicked', { file_type: type, flow_mode: flowMode });
+  }
+
   // ── Email delivery ─────────────────────────────────────────────
   async function sendEmail() {
     const email = document.getElementById('dl-email')?.value.trim();
@@ -629,6 +895,7 @@ const App = (() => {
       if (res.ok) {
         msg.textContent = '✓ Files sent to ' + email;
         msg.className = 'email-msg ok';
+        trackEvent('email_delivery_used');
       } else {
         throw new Error('Send failed');
       }
@@ -640,6 +907,7 @@ const App = (() => {
 
   // ── LinkedIn upsell ────────────────────────────────────────────
   function buyLinkedIn() {
+    trackEvent('linkedin_upsell_clicked');
     showToast('LinkedIn add-on coming soon! Contact hello@realplannet.com', 'info');
   }
 
@@ -671,8 +939,8 @@ const App = (() => {
       return;
     }
     const ext = file.name.split('.').pop().toLowerCase();
-    if (!['pdf','doc','docx'].includes(ext)) {
-      showUploadError('Unsupported format. Please upload a PDF or Word (.docx) file.');
+    if (!['pdf','doc','docx','jpg','jpeg','png'].includes(ext)) {
+      showUploadError('Unsupported format. Please upload a PDF, Word (.docx), or image (JPG/PNG).');
       return;
     }
     uploadFile = file;
@@ -685,10 +953,12 @@ const App = (() => {
     document.getElementById('upload-file-name').textContent = file.name;
     document.getElementById('upload-file-size').textContent = formatBytes(file.size);
     document.getElementById('btn-upload-parse').disabled = false;
+    trackEvent('file_uploaded', { file_ext: ext });
   }
 
   function uploadClear() {
     uploadFile = null;
+    uploadFileData = null;
     document.getElementById('upload-zone').style.display = '';
     document.getElementById('upload-selected').style.display = 'none';
     document.getElementById('upload-progress').style.display = 'none';
@@ -697,71 +967,34 @@ const App = (() => {
     hideUploadError();
   }
 
-  async function uploadAndParse() {
+  /**
+   * Reads the file to base64 and moves straight to the details screen.
+   * No extraction/parsing happens here — the raw file is only read by
+   * Claude, once, after payment (see verifyAndGenerate → /api/generate).
+   */
+  async function uploadContinue() {
     if (!uploadFile) return;
     const btn = document.getElementById('btn-upload-parse');
     btn.disabled = true;
-    btn.textContent = 'Extracting…';
+    btn.textContent = 'Reading file…';
     hideUploadError();
 
-    // Show progress
-    const prog = document.getElementById('upload-progress');
-    const bar  = document.getElementById('upload-progress-bar');
-    const lbl  = document.getElementById('upload-progress-label');
-    prog.style.display = 'block';
-
     try {
-      // Step 1: read file as base64
-      lbl.textContent = 'Reading file…';
-      bar.style.width = '20%';
       const base64 = await fileToBase64(uploadFile);
+      uploadFileData = {
+        filename: uploadFile.name,
+        type: uploadFile.name.split('.').pop().toLowerCase(),
+        data: base64,
+      };
+      flowMode = 'upload';
+      sessionId = sessionId || ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8));
 
-      // Step 2: send to API
-      lbl.textContent = 'Extracting your details…';
-      bar.style.width = '50%';
-
-      const res = await fetch('/api/parse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          filename: uploadFile.name,
-          type: uploadFile.name.split('.').pop().toLowerCase(),
-          data: base64,
-        }),
-      });
-      const json = await res.json();
-
-      if (!res.ok) throw new Error(json.error || 'Extraction failed');
-
-      // Step 3: pre-fill form data
-      lbl.textContent = 'Pre-filling your form…';
-      bar.style.width = '90%';
-
-      const parsed = json.cvData;
-      if (parsed.personal)   cvData.personal    = { ...cvData.personal, ...parsed.personal };
-      if (parsed.summary)    cvData.summary     = parsed.summary;
-      if (parsed.experience?.length) cvData.experience = parsed.experience;
-      if (parsed.education?.length)  cvData.education  = parsed.education;
-      if (parsed.skills)     cvData.skills      = { ...cvData.skills, ...parsed.skills };
-      if (parsed.extras)     cvData.extras      = { ...cvData.extras, ...parsed.extras };
-
-      bar.style.width = '100%';
-      lbl.textContent = 'Done! Review your details.';
-
-      // Small delay then go to form
-      setTimeout(() => {
-        sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-        currentStep = 0;
-        showScreen('screen-form');
-        renderStep();
-        showToast('CV imported — review and edit your details below.', 'info');
-      }, 600);
-
+      showScreen('screen-details');
+      renderGuidedBlocks();
     } catch (err) {
-      prog.style.display = 'none';
       btn.disabled = false;
-      btn.textContent = 'Extract & Pre-fill Form →';
-      showUploadError(err.message || 'Upload failed. Please try again or fill the form manually.');
+      btn.textContent = 'Continue →';
+      showUploadError('Could not read this file. Please try again or fill the form manually.');
     }
   }
 
@@ -790,7 +1023,7 @@ const App = (() => {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
-  // ── Draft persistence ──────────────────────────────────────────
+  // ── Draft persistence (scratch flow only) ──────────────────────
   function saveDraft() {
     try {
       localStorage.setItem('makemycv_draft', JSON.stringify({ cvData, currentStep, sessionId }));
@@ -857,13 +1090,16 @@ const App = (() => {
     selectTemplate, proceedToPayment,
     initiatePayment,
     sendEmail, buyLinkedIn,
+    trackEvent, trackDownload,
     // Upload flow
     uploadDragOver, uploadDragLeave, uploadDrop,
-    uploadFileSelected, uploadClear, uploadAndParse,
+    uploadFileSelected, uploadClear, uploadContinue,
+    // Details / guided-add flow
+    addGuided, removeGuided, detailsContinue,
   };
 })();
 
-// Auto-init: select classic template on load
+// Auto-init: select executive template on load (default per pricing/positioning)
 document.addEventListener('DOMContentLoaded', () => {
-  App.selectTemplate('classic');
+  App.selectTemplate('executive');
 });

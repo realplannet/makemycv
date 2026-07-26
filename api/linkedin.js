@@ -43,9 +43,11 @@ module.exports = async (req, res) => {
     if (!session) return res.status(404).json({ error: 'Session not found' });
 
     // Generate LinkedIn copy
+    // Model was 'claude-sonnet-4-20250514' — deprecated/404s (same bug fixed in lib/ai.js).
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1024,
+      thinking: { type: 'disabled' },
       system: LINKEDIN_PROMPT,
       messages: [{
         role: 'user',
@@ -53,7 +55,10 @@ module.exports = async (req, res) => {
       }],
     });
 
-    const text = response.content[0].text.trim()
+    // Sonnet 5 runs adaptive thinking by default, so content[0] can be a
+    // "thinking" block rather than "text" — find the text block explicitly.
+    const textBlock = response.content.find(b => b.type === 'text');
+    const text = textBlock.text.trim()
       .replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
     const linkedin = JSON.parse(text);
 

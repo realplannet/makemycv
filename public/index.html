@@ -9,6 +9,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Google tag (gtag.js) — Make My CV GA4 property.
+       Every screen transition fires a screen_view event (see app.js trackEvent),
+       so a Funnel Exploration on screen_name shows exactly where people drop off. -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TGJM6WMYBJ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-TGJM6WMYBJ');
+  </script>
 </head>
 <body>
 
@@ -280,11 +291,11 @@
       <p class="step-subtitle">Download your files below. Links are valid for 24 hours.</p>
 
       <div class="download-btns">
-        <a id="dl-pdf" class="btn-download btn-pdf" href="#" download>
+        <a id="dl-pdf" class="btn-download btn-pdf" href="#" download onclick="App.trackDownload('pdf')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Download PDF
         </a>
-        <a id="dl-docx" class="btn-download btn-docx" href="#" download>
+        <a id="dl-docx" class="btn-download btn-docx" href="#" download onclick="App.trackDownload('docx')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Download Word
         </a>
@@ -327,7 +338,7 @@
     </div>
     <div class="form-body" style="padding-top:36px;">
       <h2 class="step-title-main">Upload Your CV</h2>
-      <p class="step-subtitle">We'll extract your details and pre-fill the form. You can review and edit everything before paying.</p>
+      <p class="step-subtitle">Our AI reads your CV directly — no re-typing. On the next screen you can tell us about anything new to add or change.</p>
 
       <!-- Drop zone -->
       <div class="upload-zone" id="upload-zone"
@@ -340,10 +351,10 @@
         </div>
         <div class="upload-zone-title">Drag &amp; drop your CV here</div>
         <div class="upload-zone-sub">or click to browse</div>
-        <div class="upload-zone-formats">PDF · Word (.docx) · Max 10MB</div>
+        <div class="upload-zone-formats">PDF · Word (.docx) · JPG/PNG · Max 10MB</div>
       </div>
 
-      <input type="file" id="upload-file-input" accept=".pdf,.doc,.docx"
+      <input type="file" id="upload-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
         style="display:none" onchange="App.uploadFileSelected(event)" />
 
       <!-- File selected state -->
@@ -370,13 +381,64 @@
       <div class="upload-error" id="upload-error" style="display:none;"></div>
 
       <div class="upload-actions">
-        <button class="btn-primary btn-large" id="btn-upload-parse" onclick="App.uploadAndParse()" style="width:100%;justify-content:center;" disabled>
-          Extract & Pre-fill Form →
+        <button class="btn-primary btn-large" id="btn-upload-parse" onclick="App.uploadContinue()" style="width:100%;justify-content:center;" disabled>
+          Continue →
         </button>
         <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="App.startFlow('form')">
           Skip — Fill Manually Instead
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ DETAILS SCREEN (post-upload) ═══════════════════════════════════════ -->
+<div id="screen-details" class="screen">
+  <div class="form-shell">
+    <div class="form-header">
+      <button class="back-btn" onclick="App.showScreen('screen-upload')">← Back</button>
+      <img src="/assets/makemycv-logo.svg" alt="MakeMyCV" height="26" />
+      <div></div>
+    </div>
+    <div class="form-body">
+      <h2 class="step-title-main">Anything to add or change?</h2>
+      <p class="step-subtitle">We'll read your uploaded CV directly when generating. Tell us about anything new — a recent role, a certification, an edit — and we'll fold it in.</p>
+
+      <div class="field-group">
+        <label class="field-label">Full Name <span class="req">*</span></label>
+        <input class="form-input" id="d-name" placeholder="Raneesh Raveendran" />
+      </div>
+      <div class="form-row">
+        <div class="field-group">
+          <label class="field-label">Email <span class="req">*</span></label>
+          <input class="form-input" id="d-email" type="email" placeholder="you@email.com" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Phone <span class="req">*</span></label>
+          <input class="form-input" id="d-phone" placeholder="+971 50 123 4567" />
+        </div>
+      </div>
+      <div class="field-hint" style="margin:-14px 0 24px;">We'll use this to send your CV and reach you if needed.</div>
+
+      <div class="field-group">
+        <label class="field-label">Anything new to add or change (optional)</label>
+        <textarea class="form-textarea" id="d-notes" rows="4" placeholder="e.g. I got promoted to Senior Manager in 2025. Add my NEBOSH certification. Update my phone number."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Or add specific new details</label>
+        <div class="quick-add-row">
+          <button type="button" class="btn-quick-add" onclick="App.addGuided('experience')">+ Add Experience</button>
+          <button type="button" class="btn-quick-add" onclick="App.addGuided('education')">+ Add Education</button>
+          <button type="button" class="btn-quick-add" onclick="App.addGuided('certification')">+ Add Certification/Skill</button>
+          <button type="button" class="btn-quick-add" onclick="App.addGuided('project')">+ Add Project/Award</button>
+        </div>
+        <div id="guided-blocks"></div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <div></div>
+      <button class="btn-primary" onclick="App.detailsContinue()">Continue →</button>
     </div>
   </div>
 </div>
