@@ -862,12 +862,8 @@ const App = (() => {
 
   // ── Download screen setup ──────────────────────────────────────
   function setupDownloadScreen(genData) {
-    const pdfUrl  = `/api/download?fileId=${genData.fileId}&type=pdf`;
     const docxUrl = `/api/download?fileId=${genData.fileId}&type=docx`;
-
-    const dlPdf  = document.getElementById('dl-pdf');
     const dlDocx = document.getElementById('dl-docx');
-    if (dlPdf)  { dlPdf.href  = pdfUrl;  dlPdf.download  = genData.pdfFilename; }
     if (dlDocx) { dlDocx.href = docxUrl; dlDocx.download = genData.docxFilename; }
 
     clearDraft();

@@ -1,7 +1,9 @@
 /**
  * POST /api/email
  * Body: { email, fileId }
- * Sends PDF + DOCX download links to user's email via Resend
+ * Sends the Word (.docx) download link to user's email via Resend.
+ * (Older orders from before PDF generation was removed may still have a pdf_path
+ * on file — buildEmailHTML includes that button only if one exists.)
  */
 
 const { getSession, getSignedUrl } = require('../lib/supabase');
@@ -30,9 +32,9 @@ module.exports = async (req, res) => {
       return res.status(410).json({ error: 'Files expired. Links are valid for 24 hours only.' });
     }
 
-    // Generate signed URLs
+    // Generate signed URL(s) — pdfUrl only exists for legacy pre-removal orders
     const [pdfUrl, docxUrl] = await Promise.all([
-      getSignedUrl(session.pdf_path),
+      session.pdf_path ? getSignedUrl(session.pdf_path) : null,
       getSignedUrl(session.docx_path),
     ]);
 
@@ -85,9 +87,10 @@ function buildEmailHTML(name, pdfUrl, docxUrl) {
         <tr>
           <td style="padding:36px;">
             <p style="margin:0 0 8px;font-size:22px;font-weight:300;color:#fff;">Your CV is ready, ${name.split('_')[0]}!</p>
-            <p style="margin:0 0 28px;font-size:15px;color:#888;line-height:1.6;">Your professionally crafted CV has been generated. Download both files below — links are valid for <strong style="color:#e8e4dc;">24 hours</strong>.</p>
+            <p style="margin:0 0 28px;font-size:15px;color:#888;line-height:1.6;">Your professionally crafted CV has been generated. Download it below — link is valid for <strong style="color:#e8e4dc;">24 hours</strong>.</p>
 
-            <!-- PDF Button -->
+            ${pdfUrl ? `
+            <!-- PDF Button (legacy order) -->
             <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:12px;">
               <tr>
                 <td align="center" style="background:#e05a5a;border-radius:8px;">
@@ -96,7 +99,7 @@ function buildEmailHTML(name, pdfUrl, docxUrl) {
                   </a>
                 </td>
               </tr>
-            </table>
+            </table>` : ''}
 
             <!-- Word Button -->
             <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:28px;">

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MakeMyCV — Professional CV in Minutes | Real Plannet</title>
-  <meta name="description" content="Upload your existing CV or fill a simple form. Pay once. Download a professionally crafted PDF and Word CV powered by AI." />
+  <meta name="description" content="Upload your existing CV or fill a simple form. Pay once. Download a professionally crafted Word CV powered by AI." />
   <link rel="icon" href="/assets/makemycv-favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -36,7 +36,7 @@
   <section class="hero">
     <div class="hero-badge">AI-Powered · Pay Once · No Subscription</div>
     <h1 class="hero-title">Your CV.<br>Professionally crafted.<br>In minutes.</h1>
-    <p class="hero-sub">Upload your existing CV or fill a simple form. Our AI rewrites, structures, and delivers a recruiter-ready PDF and Word file — instantly.</p>
+    <p class="hero-sub">Upload your existing CV or fill a simple form. Our AI rewrites, structures, and delivers a recruiter-ready Word (.docx) file — instantly.</p>
     <div class="hero-ctas">
       <button class="btn-primary btn-large" onclick="App.showScreen('screen-upload')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -68,7 +68,7 @@
       <div class="step">
         <div class="step-num">03</div>
         <div class="step-title">Download Both Files</div>
-        <div class="step-desc">AI crafts your CV. Download PDF and Word instantly. Links valid for 24 hours.</div>
+        <div class="step-desc">AI crafts your CV. Download your Word (.docx) file instantly. Link valid for 24 hours.</div>
       </div>
     </div>
   </section>
@@ -91,7 +91,7 @@
       <div class="price-label">One CV · One Payment · Done</div>
       <ul class="price-features">
         <li>✓ AI-enhanced professional content</li>
-        <li>✓ PDF + Word (.docx) download</li>
+        <li>✓ Word (.docx) download</li>
         <li>✓ Choice of 5 templates</li>
         <li>✓ ATS-optimised formatting</li>
         <li>✓ No account required</li>
@@ -106,7 +106,7 @@
     <div class="faq-list">
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">How long does it take?<span class="faq-chevron">›</span></div>
-        <div class="faq-a">Once you complete the form and pay, your CV is ready in 30–60 seconds. Both PDF and Word files are generated simultaneously.</div>
+        <div class="faq-a">Once you complete the form and pay, your CV is ready in 30–60 seconds as a fully editable Word (.docx) file.</div>
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">What AI model is used?<span class="faq-chevron">›</span></div>
@@ -238,7 +238,7 @@
       <h2 class="step-title-main">Complete Payment</h2>
       <div class="order-summary">
         <div class="order-row">
-          <span>1× Professional CV (PDF + Word)</span>
+          <span>1× Professional CV (Word .docx)</span>
           <span class="order-price">₹199</span>
         </div>
         <div class="order-row order-template-row">
@@ -275,7 +275,7 @@
       <div class="gen-step" id="gstep-0"><span class="gs-dot"></span><span class="gs-label">Structuring your data</span></div>
       <div class="gen-step" id="gstep-1"><span class="gs-dot"></span><span class="gs-label">AI enhancing content</span></div>
       <div class="gen-step" id="gstep-2"><span class="gs-dot"></span><span class="gs-label">Applying template</span></div>
-      <div class="gen-step" id="gstep-3"><span class="gs-dot"></span><span class="gs-label">Generating PDF + Word</span></div>
+      <div class="gen-step" id="gstep-3"><span class="gs-dot"></span><span class="gs-label">Generating Word Document</span></div>
     </div>
     <div class="gen-bar-wrap"><div class="gen-bar" id="gen-bar"></div></div>
     <p class="gen-note">Usually takes 30–60 seconds</p>
@@ -288,13 +288,9 @@
     <div class="form-body" style="padding-top:40px;">
       <div class="success-icon">✓</div>
       <h2 class="step-title-main">Your CV is ready!</h2>
-      <p class="step-subtitle">Download your files below. Links are valid for 24 hours.</p>
+      <p class="step-subtitle">Download your CV below. Link is valid for 24 hours.</p>
 
       <div class="download-btns">
-        <a id="dl-pdf" class="btn-download btn-pdf" href="#" download onclick="App.trackDownload('pdf')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Download PDF
-        </a>
         <a id="dl-docx" class="btn-download btn-docx" href="#" download onclick="App.trackDownload('docx')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Download Word

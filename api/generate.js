@@ -1,6 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
 const { generateCVFromData, generateCVFromUpload } = require('../lib/ai');
-const { renderPDF }   = require('../lib/pdf');
 const { renderDOCX }  = require('../lib/docx');
 const { uploadFiles, saveSession } = require('../lib/supabase');
 
@@ -39,19 +38,17 @@ module.exports = async (req, res) => {
       enhancedCV = await generateCVFromData(cvData);
     }
 
-    // 2. Generate PDF + DOCX in parallel
-    const [pdfBuffer, docxBuffer] = await Promise.all([
-      renderPDF(enhancedCV, template),
-      renderDOCX(enhancedCV),
-    ]);
+    // 2. Generate DOCX (PDF generation removed — Word is fully editable and this
+    //    drops the Puppeteer/Chromium dependency entirely, one less failure point)
+    const docxBuffer = await renderDOCX(enhancedCV);
 
     // 3. Upload to Supabase Storage
     const fileId  = uuidv4();
     const safeName = (enhancedCV.name || 'CV').replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '_');
-    const { pdfPath, docxPath } = await uploadFiles(fileId, safeName, pdfBuffer, docxBuffer);
+    const { docxPath } = await uploadFiles(fileId, safeName, docxBuffer);
 
     // 4. Save session record
-    await saveSession(sessionId, fileId, safeName, pdfPath, docxPath, {
+    await saveSession(sessionId, fileId, safeName, docxPath, {
       email: contact?.email || enhancedCV.email || null,
       template,
       razorpayOrderId: razorpayOrderId || null,
@@ -62,7 +59,6 @@ module.exports = async (req, res) => {
       success:      true,
       fileId,
       name:         safeName,
-      pdfFilename:  `${safeName}_CV.pdf`,
       docxFilename: `${safeName}_CV.docx`,
     });
   } catch (err) {

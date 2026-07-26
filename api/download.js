@@ -1,14 +1,14 @@
 const { getSession, getSignedUrl } = require('../lib/supabase');
 
-// GET /api/download?fileId=xxx&type=pdf|docx
+// GET /api/download?fileId=xxx&type=docx
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const { fileId, type } = req.query;
 
-  if (!fileId || !['pdf', 'docx'].includes(type)) {
-    return res.status(400).json({ error: 'fileId and type (pdf|docx) required' });
+  if (!fileId || type !== 'docx') {
+    return res.status(400).json({ error: 'fileId and type=docx required (PDF download was removed)' });
   }
 
   try {
@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
       return res.status(410).json({ error: 'Download link expired. Links are valid for 24 hours.' });
     }
 
-    const filePath   = type === 'pdf' ? session.pdf_path : session.docx_path;
+    const filePath   = session.docx_path;
     const signedUrl  = await getSignedUrl(filePath);
 
     // Redirect to Supabase signed URL — browser downloads directly from storage
