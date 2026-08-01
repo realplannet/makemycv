@@ -3,12 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MakeMyCV — Professional CV in Minutes | Real Plannet</title>
-  <meta name="description" content="Upload your existing CV or fill a simple form. Pay once. Download a professionally crafted Word CV powered by AI." />
+  <title>MakeMyCV — A recruiter-ready CV in 60 seconds | Real Plannet</title>
+  <meta name="description" content="Upload the CV you have. Claude rewrites the language, rebuilds the structure, and hands back a recruiter-ready Word (.docx) file. ₹199 once — no account, no subscription." />
   <link rel="icon" href="/assets/makemycv-favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://makemycv.realplannet.com/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+  /* ── Landing page (screen-landing) — scoped so it can't leak into
+       or collide with the shared style.css used by every other screen.
+       Two exact class-name collisions exist (.nav, .faq) plus general
+       risk from generic names, so every selector below is prefixed. ── */
+  :root{--black:#050508;--ink:#101018;--gold:#c9a84c;--goldl:#e8c97a;--deep:#a8842f;--paper:#f5f3ee;--dim:rgba(245,244,240,.52);--line:rgba(201,168,76,.18);--sans:'DM Sans',sans-serif;--serif:'Cormorant Garamond',serif;--pad:64px}
+  #screen-landing .eb{font-size:10.5px;letter-spacing:3.4px;text-transform:uppercase;font-weight:500;color:var(--gold)}
+  #screen-landing .sm{font-size:12.5px;letter-spacing:.2px}
+  #screen-landing .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:var(--sans);font-size:15px;font-weight:600;padding:17px 30px;border-radius:9px;border:none;cursor:pointer;letter-spacing:.1px;transition:background .16s ease,transform .16s ease}
+  #screen-landing .btn-gold{background:var(--gold);color:#15110a}
+  #screen-landing .btn-gold:hover{background:var(--goldl)}
+  #screen-landing .btn-gold:active{transform:translateY(1px)}
+  #screen-landing .btn .px{opacity:.62;font-weight:500}
+  #screen-landing .wrap{max-width:1280px;margin:0 auto}
+  #screen-landing .sec{padding:82px var(--pad)}
+  #screen-landing .sech{font-family:var(--serif);font-weight:600;font-size:40px;line-height:1.1;margin:0;letter-spacing:-.4px}
+  #screen-landing .secs{font-size:14.5px;line-height:1.65;margin:12px 0 0;max-width:520px;font-weight:300;color:var(--dim)}
+  #screen-landing hr.hr-d{height:1px;background:rgba(245,243,238,.09);border:0;margin:0}
+  #screen-landing a{color:var(--gold);text-decoration:none}
+  #screen-landing a:hover{color:var(--goldl)}
+  #screen-landing img,#screen-landing svg{display:block;max-width:100%}
+  #screen-landing .nav{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:34px;padding:18px var(--pad);border-bottom:1px solid var(--line);background:rgba(5,5,8,.86);backdrop-filter:blur(12px)}
+  #screen-landing .nav .logo{font-family:var(--serif);font-size:21px;font-weight:500;letter-spacing:-.2px;color:var(--paper)}
+  #screen-landing .nav .logo b{font-weight:700;color:var(--gold)}
+  #screen-landing .nav .links{display:flex;gap:28px;margin-left:auto;font-size:13.5px;font-weight:500}
+  #screen-landing .nav .links a{color:var(--paper);opacity:.72}
+  #screen-landing .nav .links a:hover{opacity:1;color:var(--gold)}
+  #screen-landing .cvdoc{background:#fff;color:#15151c;border-radius:3px;padding:26px 24px;box-shadow:0 30px 70px rgba(0,0,0,.42);display:flex;flex-direction:column;gap:13px}
+  #screen-landing .cvdoc .nm{font-family:var(--serif);font-size:23px;font-weight:600;line-height:1}
+  #screen-landing .cvdoc .rl{font-size:8.5px;letter-spacing:2.4px;text-transform:uppercase;color:var(--deep);font-weight:600;margin-top:5px}
+  #screen-landing .cvdoc .sh{font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding-bottom:5px;border-bottom:1px solid rgba(16,16,24,.16)}
+  #screen-landing .ln{height:5px;border-radius:3px;background:rgba(16,16,24,.13)}
+  #screen-landing .ln.d{background:rgba(16,16,24,.24)}
+  #screen-landing .ln.g{background:rgba(201,168,76,.5)}
+  #screen-landing .lns{display:flex;flex-direction:column;gap:5px}
+  #screen-landing .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  #screen-landing .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:74px var(--pad) 66px;position:relative}
+  #screen-landing .glow{position:absolute;top:-160px;right:-120px;width:620px;height:620px;background:radial-gradient(circle,rgba(201,168,76,.13),transparent 66%);pointer-events:none;z-index:0}
+  #screen-landing .hero>*:not(.glow){position:relative;z-index:1}
+  #screen-landing .h1{font-family:var(--serif);font-weight:500;font-size:62px;line-height:1.07;letter-spacing:-1.2px;margin:20px 0 0}
+  #screen-landing .h1 em{font-style:normal;color:var(--gold);font-weight:600}
+  #screen-landing .h1 s{text-decoration:none;position:relative;color:var(--dim)}
+  #screen-landing .h1 s:after{content:'';position:absolute;left:-2px;right:-2px;top:52%;height:2px;background:var(--gold)}
+  #screen-landing .h-sub{font-size:16.5px;line-height:1.66;color:var(--dim);font-weight:300;max-width:452px;margin:22px 0 0}
+  #screen-landing .h-cta{display:flex;align-items:center;gap:20px;margin-top:32px;flex-wrap:wrap}
+  #screen-landing .h-cta .alt{font-size:13.5px;color:var(--dim)}
+  #screen-landing .h-cta .alt a{border-bottom:1px solid var(--line);padding-bottom:1px}
+  #screen-landing .h-mini{display:flex;gap:22px;margin-top:30px;font-size:11.5px;color:var(--dim);letter-spacing:.3px;flex-wrap:wrap}
+  #screen-landing .stack{position:relative;height:454px}
+  #screen-landing .stack .cvdoc{position:absolute;width:318px}
+  #screen-landing .chip{position:absolute;background:var(--gold);color:#15110a;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;padding:8px 13px;border-radius:6px;box-shadow:0 14px 30px rgba(0,0,0,.4)}
+  #screen-landing .trust{display:flex;justify-content:center;gap:20px 54px;padding:20px var(--pad);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#08080d;font-size:11.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--dim);flex-wrap:wrap}
+  #screen-landing .ba{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(245,243,238,.09);border-radius:14px;overflow:hidden;margin-top:38px}
+  #screen-landing .ba>div{padding:30px 32px}
+  #screen-landing .ba .bt{font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;margin:0 0 18px;font-weight:600}
+  #screen-landing .ba .row{display:flex;gap:11px;font-size:13.5px;line-height:1.55;font-weight:300;padding:11px 0;border-bottom:1px solid rgba(245,243,238,.06)}
+  #screen-landing .ba .row:last-child{border:0}
+  #screen-landing .ba .row i{font-style:normal;flex:0 0 14px;font-weight:600}
+  #screen-landing .tpl{display:flex;gap:16px;margin-top:34px}
+  #screen-landing .tpl .t{flex:1;min-width:0;display:flex;flex-direction:column}
+  #screen-landing .tpl .cvdoc{padding:15px 14px;gap:9px;border-radius:2px;height:290px;overflow:hidden}
+  #screen-landing .tpl .cvdoc .nm{font-size:14px}
+  #screen-landing .tpl .cap{display:flex;align-items:baseline;justify-content:space-between;margin-top:auto;padding-top:12px}
+  #screen-landing .tpl .cap b{font-size:13.5px;font-weight:600}
+  #screen-landing .tpl .cap span{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim)}
+  #screen-landing .tpl-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
+  #screen-landing .price{display:grid;grid-template-columns:1fr 1fr;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+  #screen-landing .price .l{padding:44px;background:#0c0c13}
+  #screen-landing .price .r{padding:44px;background:linear-gradient(150deg,#151109,#0c0c13)}
+  #screen-landing .cmp{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid rgba(245,243,238,.07);font-size:13.5px;font-weight:300}
+  #screen-landing .cmp b{font-weight:600;font-size:14px;white-space:nowrap}
+  #screen-landing .cmp.on{color:var(--gold)}
+  #screen-landing .big{font-family:var(--serif);font-size:74px;font-weight:600;line-height:1;color:var(--gold)}
+  #screen-landing .tick{display:flex;gap:11px;font-size:14px;font-weight:300;padding:9px 0}
+  #screen-landing .tick i{font-style:normal;color:var(--gold);font-weight:600}
+  #screen-landing .faq{border-top:1px solid rgba(245,243,238,.09)}
+  #screen-landing .faq details{border-bottom:1px solid rgba(245,243,238,.09)}
+  #screen-landing .faq summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:16px;padding:22px 0;font-size:15.5px;font-weight:600}
+  #screen-landing .faq summary::-webkit-details-marker{display:none}
+  #screen-landing .faq summary:after{content:'+';margin-left:auto;color:var(--gold);font-size:20px;font-weight:400;line-height:1}
+  #screen-landing .faq details[open] summary:after{content:'–'}
+  #screen-landing .faq p{font-size:13.5px;line-height:1.68;font-weight:300;color:var(--dim);margin:0 0 24px;max-width:660px}
+  #screen-landing .final{padding:70px var(--pad);background:linear-gradient(160deg,#14100a,#08080d);border-top:1px solid var(--line);display:flex;align-items:center;gap:40px;flex-wrap:wrap}
+  #screen-landing .final h3{font-family:var(--serif);font-size:42px;font-weight:600;margin:0;line-height:1.08;letter-spacing:-.6px}
+  #screen-landing .final p{font-size:14.5px;margin:10px 0 0;color:var(--dim);font-weight:300}
+  #screen-landing .foot{padding:34px var(--pad);display:flex;align-items:center;gap:26px;font-size:12px;letter-spacing:.2px;border-top:1px solid var(--line);color:var(--dim);flex-wrap:wrap}
+  #screen-landing .foot .fl{margin-left:auto;display:flex;gap:22px;flex-wrap:wrap}
+  #screen-landing .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  @media(max-width:1040px){
+  :root{--pad:40px}
+  #screen-landing .h1{font-size:50px}
+  #screen-landing .sech{font-size:34px}
+  #screen-landing .hero{grid-template-columns:1fr;gap:48px;padding-top:56px}
+  #screen-landing .stack{height:400px;max-width:420px}
+  #screen-landing .price{grid-template-columns:1fr}
+  #screen-landing .tpl{overflow-x:auto;scroll-snap-type:x mandatory;margin:34px calc(var(--pad)*-1) 0;padding:0 var(--pad) 8px}
+  #screen-landing .tpl .t{flex:0 0 210px;scroll-snap-align:start}
+  }
+  @media(max-width:720px){
+  :root{--pad:22px}
+  #screen-landing .nav .links{display:none}
+  #screen-landing .h1{font-size:38px;letter-spacing:-.6px}
+  #screen-landing .sech{font-size:28px}
+  #screen-landing .sec{padding:56px var(--pad)}
+  #screen-landing .h-sub{font-size:15.5px}
+  #screen-landing .h-cta .btn{width:100%}
+  #screen-landing .hero{padding-top:44px;padding-bottom:48px}
+  #screen-landing .stack{height:360px;max-width:none}
+  #screen-landing .stack .cvdoc{width:270px}
+  #screen-landing .trust{gap:10px 18px;font-size:10px;letter-spacing:1.6px}
+  #screen-landing .ba{grid-template-columns:1fr}
+  #screen-landing .ba>div{border-right:0!important}
+  #screen-landing .price .l,#screen-landing .price .r{padding:32px 26px}
+  #screen-landing .big{font-size:60px}
+  #screen-landing .final{padding:52px var(--pad)}
+  #screen-landing .final h3{font-size:30px}
+  #screen-landing .final .btn{width:100%}
+  #screen-landing .foot{gap:14px}
+  #screen-landing .foot .fl{margin-left:0}
+  }
+  </style>
 
   <!-- Google tag (gtag.js) — Make My CV GA4 property.
        Every screen transition fires a screen_view event (see app.js trackEvent),
@@ -26,118 +149,122 @@
 <!-- ═══════════════════════════════════════ LANDING PAGE ═══════════════════════════════════════ -->
 <div id="screen-landing" class="screen active">
 
-  <nav class="nav">
-    <a href="https://realplannet.com" class="nav-logo">
-      <img src="/assets/realplannet-logo-light.svg" alt="Real Plannet" height="28" />
-    </a>
-    <a href="#pricing" class="nav-link">Pricing</a>
-  </nav>
+<nav class="nav">
+<a class="logo" href="/">MakeMy<b>CV</b></a>
+<div class="links"><a href="#how">How it works</a><a href="#templates">Templates</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+<button class="btn btn-gold" data-action="upload" style="padding:12px 20px;font-size:13.5px;">Get my CV <span class="px">₹199</span></button>
+</nav>
 
-  <section class="hero">
-    <div class="hero-badge">AI-Powered · Pay Once · No Subscription</div>
-    <h1 class="hero-title">Your CV.<br>Professionally crafted.<br>In minutes.</h1>
-    <p class="hero-sub">Upload your existing CV or fill a simple form. Our AI rewrites, structures, and delivers a recruiter-ready Word (.docx) file — instantly.</p>
-    <div class="hero-ctas">
-      <button class="btn-primary btn-large" onclick="App.showScreen('screen-upload')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Upload Existing CV
-      </button>
-      <button class="btn-ghost btn-large" onclick="App.startFlow('form')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        Build from Scratch
-      </button>
-    </div>
-    <p class="hero-note">No account required &nbsp;·&nbsp; Files ready in 60 seconds</p>
-  </section>
-
-  <section class="how-it-works">
-    <div class="section-label">How It Works</div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-title">Fill Your Details</div>
-        <div class="step-desc">Enter your work history, education, and skills in our guided form — takes about 5 minutes.</div>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-title">Pay Once</div>
-        <div class="step-desc">Single fixed price. No subscription. Secure payment via Razorpay — UPI, card, net banking.</div>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-title">Download Your CV</div>
-        <div class="step-desc">AI crafts your CV. Download your Word (.docx) file instantly. Link valid for 24 hours.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="templates-preview">
-    <div class="section-label">5 Professional Templates</div>
-    <div class="template-cards">
-      <div class="tcard"><div class="tcard-thumb tcard-classic"></div><div class="tcard-name">Classic</div><div class="tcard-ats">✓ ATS Safe</div></div>
-      <div class="tcard"><div class="tcard-thumb tcard-modern"></div><div class="tcard-name">Modern</div><div class="tcard-ats">✓ ATS Safe</div></div>
-      <div class="tcard tcard-featured"><div class="tcard-thumb tcard-executive"></div><div class="tcard-name">Executive</div><div class="tcard-ats">✓ ATS Safe</div></div>
-      <div class="tcard"><div class="tcard-thumb tcard-minimal"></div><div class="tcard-name">Minimal</div><div class="tcard-ats">✓ ATS Safe</div></div>
-      <div class="tcard"><div class="tcard-thumb tcard-creative"></div><div class="tcard-name">Creative</div><div class="tcard-ats">⚡ Partial ATS</div></div>
-    </div>
-  </section>
-
-  <section class="pricing" id="pricing">
-    <div class="section-label">Pricing</div>
-    <div class="price-card">
-      <div class="price-amount">₹199</div>
-      <div class="price-label">One CV · One Payment · Done</div>
-      <ul class="price-features">
-        <li>✓ AI-enhanced professional content</li>
-        <li>✓ Word (.docx) download</li>
-        <li>✓ Choice of 5 templates</li>
-        <li>✓ ATS-optimised formatting</li>
-        <li>✓ No account required</li>
-      </ul>
-      <button class="btn-primary btn-large" onclick="App.startFlow('form')">Get My CV Now</button>
-      <div class="price-trust">🔒 Secure payment via Razorpay &nbsp;·&nbsp; MSME Registered</div>
-    </div>
-  </section>
-
-  <section class="faq">
-    <div class="section-label">FAQ</div>
-    <div class="faq-list">
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-q">How long does it take?<span class="faq-chevron">›</span></div>
-        <div class="faq-a">Once you complete the form and pay, your CV is ready in 30–60 seconds as a fully editable Word (.docx) file.</div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-q">What AI model is used?<span class="faq-chevron">›</span></div>
-        <div class="faq-a">We use Anthropic's Claude — one of the most capable AI models available — trained specifically to write professional, recruiter-ready CVs.</div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-q">Is my data safe?<span class="faq-chevron">›</span></div>
-        <div class="faq-a">Your CV data is used only to generate your files and is automatically deleted after 24 hours. We never sell or share your information.</div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-q">Can I edit the Word file later?<span class="faq-chevron">›</span></div>
-        <div class="faq-a">Yes — the Word (.docx) file is fully editable. Update it anytime in Microsoft Word, Google Docs, or LibreOffice.</div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-q">What payment methods are accepted?<span class="faq-chevron">›</span></div>
-        <div class="faq-a">UPI, debit/credit cards, net banking, and international cards — all via Razorpay's secure payment gateway.</div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <img src="/assets/realplannet-logo-light.svg" alt="Real Plannet" height="22" />
-    <p>© 2026 Real Plannet · Udyam Registered MSME · Bangalore, India</p>
-    <div class="footer-links">
-      <a href="/privacy">Privacy Policy</a>
-      <a href="mailto:hello@realplannet.com">Contact</a>
-      <a href="https://realplannet.com">realplannet.com</a>
-    </div>
-  </footer>
+<header class="hero">
+<div class="glow"></div>
+<div>
+<p class="eb" style="margin:0;">One-time ₹199 · No account · Word .docx</p>
+<h1 class="h1">The CV you'd pay a writer <s>₹8,000</s> for.<br><em>₹199. Sixty seconds.</em></h1>
+<p class="h-sub">Upload the CV you already have. Claude rewrites the language, rebuilds the structure, and hands back a recruiter-ready Word file that stays yours to edit forever.</p>
+<div class="h-cta">
+<button class="btn btn-gold" data-action="upload">Upload my CV →</button>
+<span class="alt">or <a href="#" data-action="manual">build from scratch</a></span>
 </div>
+<div class="h-mini"><span>1,000+ CVs delivered</span><span>Data deleted in 24h</span><span>Razorpay secured</span></div>
+</div>
+<div class="stack">
+<div class="cvdoc" data-cv="modern" style="left:34px;top:52px;transform:rotate(-4.5deg) scale(.92);opacity:.5;"></div>
+<div class="cvdoc" data-cv="classic" style="left:96px;top:8px;"></div>
+<div class="chip" style="left:64px;top:-4px;">ATS-safe</div>
+<div class="chip" style="right:-6px;bottom:44px;background:#fff;color:#15151c;">.docx · editable</div>
+</div>
+</header>
 
+<div class="trust"><span>Udyam MSME registered</span><span>UPI · Card · Net banking</span><span>No subscription</span></div>
+
+<section class="sec" id="how">
+<p class="eb" style="margin:0 0 14px;">The difference</p>
+<h2 class="sech">Same career.<br>Read completely differently.</h2>
+<p class="secs">Recruiters spend six seconds on a first pass. Most CVs lose them in the first two lines — not because the career is weak, but because the writing is.</p>
+<div class="ba">
+<div style="background:#0b0b11;border-right:1px solid rgba(245,243,238,.09);">
+<p class="bt" style="color:var(--dim);">What you upload</p>
+<div class="row"><i style="color:var(--dim);">—</i><span>"Responsible for managing facilities operations and vendor coordination."</span></div>
+<div class="row"><i style="color:var(--dim);">—</i><span>Two dense pages; the good part is on page two.</span></div>
+<div class="row"><i style="color:var(--dim);">—</i><span>Skills as one long comma-separated list.</span></div>
+<div class="row"><i style="color:var(--dim);">—</i><span>A header that eats three inches of the page.</span></div>
+</div>
+<div style="background:linear-gradient(160deg,#14100a,#0b0b11);">
+<p class="bt" style="color:var(--gold);">What you download</p>
+<div class="row"><i style="color:var(--gold);">✓</i><span>"Cut ₹40L from annual FM spend across 12 sites in 18 months."</span></div>
+<div class="row"><i style="color:var(--gold);">✓</i><span>One page, scannable in six seconds, strongest proof first.</span></div>
+<div class="row"><i style="color:var(--gold);">✓</i><span>Skills grouped the way recruiter filters actually search.</span></div>
+<div class="row"><i style="color:var(--gold);">✓</i><span>Name, target role and one metric above the fold.</span></div>
+</div>
+</div>
+</section>
+
+<hr class="hr-d">
+<section class="sec" id="templates" style="padding-top:70px;">
+<div class="tpl-head">
+<div><p class="eb" style="margin:0 0 14px;">Templates</p><h2 class="sech">Pick the frame.<br>Five, all ATS-tested.</h2></div>
+<p class="sm" style="color:var(--dim);max-width:250px;text-align:right;margin:0;line-height:1.6;">Switch template any time before payment. Every one parses cleanly in Workday, Taleo and Greenhouse.</p>
+</div>
+<div class="tpl">
+<div class="t"><div class="cvdoc" data-cv="classic"></div><div class="cap"><b>Classic</b><span>Corporate</span></div></div>
+<div class="t"><div class="cvdoc" data-cv="modern"></div><div class="cap"><b>Modern</b><span>Tech · mid</span></div></div>
+<div class="t"><div class="cvdoc" data-cv="exec"></div><div class="cap"><b>Executive</b><span>C-suite</span></div></div>
+<div class="t"><div class="cvdoc" data-cv="minimal"></div><div class="cap"><b>Minimal</b><span>Startup</span></div></div>
+<div class="t"><div class="cvdoc" data-cv="creative"></div><div class="cap"><b>Creative</b><span>Design</span></div></div>
+</div>
+</section>
+
+<section class="sec" id="pricing" style="padding-top:26px;">
+<h2 class="sr-only">Pricing</h2>
+<div class="price">
+<div class="l">
+<p class="eb" style="color:var(--dim);margin:0 0 26px;">What this normally costs</p>
+<div class="cmp"><span>Professional CV writer</span><b>₹5,000–8,000</b></div>
+<div class="cmp"><span>Resume builder subscription</span><b>₹499 / month</b></div>
+<div class="cmp"><span>Template pack + your own weekend</span><b>₹0 + 6 hours</b></div>
+<div class="cmp on"><span>MakeMyCV</span><b>₹199 once</b></div>
+<p class="sm" style="color:var(--dim);line-height:1.6;margin-top:26px;">No account. No card on file. No renewal you'll forget about in March.</p>
+</div>
+<div class="r">
+<p class="eb" style="margin:0;">One CV · one payment</p>
+<div class="big">₹199</div>
+<div style="margin:22px 0 26px;">
+<div class="tick"><i>✓</i><span>AI-rewritten content, not a template fill</span></div>
+<div class="tick"><i>✓</i><span>Editable Word (.docx) download</span></div>
+<div class="tick"><i>✓</i><span>Any of the five templates</span></div>
+<div class="tick"><i>✓</i><span>ATS-optimised formatting</span></div>
+</div>
+<button class="btn btn-gold" data-action="upload" style="width:100%;">Get my CV now</button>
+<p class="sm" style="color:var(--dim);text-align:center;margin:14px 0 0;">Razorpay secure checkout · MSME registered</p>
+</div>
+</div>
+</section>
+
+<hr class="hr-d">
+<section class="sec" id="faq" style="padding-top:64px;padding-bottom:64px;">
+<h2 class="sech" style="font-size:32px;margin-bottom:20px;">Questions worth asking</h2>
+<div class="faq">
+<details open><summary>How long does it really take?</summary><p>Five minutes of your input, then 30–60 seconds of generation. The download link stays live for 24 hours.</p></details>
+<details><summary>Which AI writes it?</summary><p>Anthropic's Claude, prompted specifically for recruiter-facing CV language — not a generic chatbot pass.</p></details>
+<details><summary>What happens to my data?</summary><p>Used only to build your files, then automatically deleted after 24 hours. Never sold, never shared.</p></details>
+<details><summary>Can I edit it afterwards?</summary><p>Yes. It's a real .docx — open it in Word, Google Docs or LibreOffice and change anything.</p></details>
+<details><summary>Will it pass an ATS?</summary><p>Four of the five templates are single-column and parser-tested. Creative is flagged partial — use it when a human reads first.</p></details>
+<details><summary>What payment methods work?</summary><p>UPI, debit and credit cards, net banking and international cards — all through Razorpay's secure gateway.</p></details>
+</div>
+</section>
+
+<section class="final">
+<div><h3>Five minutes now.<br>A better CV for the next five years.</h3><p>₹199 once · Word .docx · no account required</p></div>
+<button class="btn btn-gold" data-action="upload" style="margin-left:auto;padding:19px 34px;font-size:16px;">Upload my CV →</button>
+</section>
+
+<footer class="foot">
+<span class="logo" style="font-family:var(--serif);font-size:18px;color:var(--paper);">MakeMy<b style="color:var(--gold);font-weight:700;">CV</b></span>
+<span>© 2026 Real Plannet · Udyam Registered MSME · Bangalore, India</span>
+<span class="fl"><a href="/privacy">Privacy Policy</a><a href="mailto:hello@realplannet.com">Contact</a><a href="https://realplannet.com">realplannet.com</a></span>
+</footer>
+
+</div>
 <!-- ═══════════════════════════════════════ CV FORM SCREEN ═══════════════════════════════════════ -->
 <div id="screen-form" class="screen">
   <div class="form-shell">
@@ -441,5 +568,29 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="app.js"></script>
+<script>
+  // Renders the little CV mockups used in the hero stack + template row.
+  const L=(w,c='')=>`<div class="ln ${c}" style="width:${w}%"></div>`;
+  const LS=(...w)=>`<div class="lns">${w.map(x=>Array.isArray(x)?L(x[0],x[1]):L(x)).join('')}</div>`;
+  const HEAD=(nm,rl)=>`<div><div class="nm">${nm}</div><div class="rl">${rl}</div></div>`;
+  const SH=t=>`<div class="sh">${t}</div>`;
+  const V={
+    classic:()=>HEAD('Anjali Menon','Facilities Manager · Bengaluru')+LS(100,94,72)+SH('Experience')+LS([88,'d'],100,96,68,[80,'d'],100,90)+SH('Education')+LS([70,'d'],52)+SH('Skills')+LS(96,84),
+    modern:()=>HEAD('Anjali Menon','Operations Lead')+LS(100,88)+`<div class="two"><div>${SH('Experience')}${LS([90,'d'],100,94,72,[84,'d'],100,88)}</div><div>${SH('Skills')}${LS(100,86,94,72)}${SH('Tools')}${LS(90,76)}</div></div>`,
+    exec:()=>`<div style="text-align:center;padding-bottom:4px;"><div class="nm" style="font-size:26px;letter-spacing:.5px;">Anjali Menon</div><div class="rl">Director, Facilities &amp; Real Estate</div></div><hr style="border:0;height:1px;background:rgba(16,16,24,.2);margin:0;">`+LS(100,96,88)+SH('Leadership')+LS([86,'d'],100,94,[82,'d'],100,90)+SH('Board &amp; Advisory')+LS(78,64),
+    minimal:()=>`<div class="nm" style="font-size:20px;">Anjali Menon</div>`+LS([46,'g'])+`<div style="height:6px"></div>`+LS(100,92)+`<div style="height:10px"></div>`+LS([74,'d'],100,88,64,[68,'d'],100,84)+`<div style="height:10px"></div>`+LS(90),
+    creative:()=>`<div style="display:grid;grid-template-columns:76px 1fr;gap:14px;"><div style="background:rgba(201,168,76,.22);border-radius:2px;padding:12px 10px;">${LS([80,'g'],[60,'g'])}<div style="height:12px"></div>${LS(90,70,86,60,78)}</div><div><div class="nm">Anjali Menon</div><div class="rl">Brand &amp; Content</div><div style="height:10px"></div>${LS(100,92)}${SH('Selected work')}${LS([88,'d'],100,90,[80,'d'],100,86)}</div></div>`
+  };
+  document.querySelectorAll('#screen-landing .cvdoc[data-cv]').forEach(el=>{const f=V[el.dataset.cv];if(f)el.innerHTML=f()});
+
+  // Wire the landing page's CTAs into the actual SPA (the uploaded design's
+  // own script expected a bare window.startFlow(), which doesn't exist here —
+  // our screen/flow logic lives on the App object built in app.js).
+  document.querySelectorAll('#screen-landing [data-action]').forEach(el => el.addEventListener('click', e => {
+    e.preventDefault();
+    if (el.dataset.action === 'manual') App.startFlow('form');
+    else App.showScreen('screen-upload');
+  }));
+</script>
 </body>
 </html>
