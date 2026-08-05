@@ -7,6 +7,11 @@
 
 const API_BASE = '';  // same origin — Vercel serves frontend + API together
 
+// TEMP incident flag — Supabase backend is unreachable (2026-08-05).
+// Blocks new payments so customers aren't charged for a CV we can't generate.
+// Set back to false once Supabase is confirmed restored.
+const MAINTENANCE_MODE = true;
+
 const STEPS = [
   { id: 'personal',  label: 'Personal'  },
   { id: 'summary',   label: 'Summary'   },
@@ -712,6 +717,10 @@ const App = (() => {
 
   // ── Payment ────────────────────────────────────────────────────
   async function initiatePayment() {
+    if (MAINTENANCE_MODE) {
+      showToast('We are fixing a temporary issue on our end — payments are paused for a short while. Please try again in a few minutes, or email hello@realplannet.com.', 'error');
+      return;
+    }
     const btn = document.getElementById('btn-pay');
     btn.disabled = true;
     btn.textContent = 'Creating order…';
