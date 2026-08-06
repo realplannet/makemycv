@@ -22,7 +22,7 @@
  *
  * Non-blocking on the frontend — failures here never stop checkout.
  */
-const { saveLead } = require('../lib/supabase');
+const { saveLead } = require('../lib/db');
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();

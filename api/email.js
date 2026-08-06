@@ -2,11 +2,13 @@
  * POST /api/email
  * Body: { email, fileId }
  * Sends the Word (.docx) download link to user's email via Resend.
- * (Older orders from before PDF generation was removed may still have a pdf_path
- * on file — buildEmailHTML includes that button only if one exists.)
+ * Links point at /api/download (streams from D1 directly) instead of an
+ * object-storage signed URL — see lib/db.js.
  */
 
-const { getSession, getSignedUrl } = require('../lib/supabase');
+const { getSession, d1 } = require('../lib/db');
+
+const SITE_URL = 'https://makemycv.realplannet.com';
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -22,25 +24,17 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Get session from Supabase
     const session = await getSession(fileId);
     if (!session) return res.status(404).json({ error: 'Files not found or expired' });
 
-    // Check 24hr expiry
     const age = Date.now() - new Date(session.created_at).getTime();
     if (age > 24 * 60 * 60 * 1000) {
       return res.status(410).json({ error: 'Files expired. Links are valid for 24 hours only.' });
     }
 
-    // Generate signed URL(s) — pdfUrl only exists for legacy pre-removal orders
-    const [pdfUrl, docxUrl] = await Promise.all([
-      session.pdf_path ? getSignedUrl(session.pdf_path) : null,
-      getSignedUrl(session.docx_path),
-    ]);
-
+    const docxUrl = `${SITE_URL}/api/download?fileId=${fileId}&type=docx`;
     const name = session.name?.replace(/_/g, ' ') || 'Your CV';
 
-    // Send via Resend
     const { Resend } = require('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -48,16 +42,11 @@ module.exports = async (req, res) => {
       from: `MakeMyCV <noreply@${process.env.EMAIL_DOMAIN || 'realplannet.com'}>`,
       to: email,
       subject: `Your CV is ready — ${name}`,
-      html: buildEmailHTML(name, pdfUrl, docxUrl),
+      html: buildEmailHTML(name, docxUrl),
     });
 
     // Save email to session record
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-    await supabase.from('cv_sessions').update({ email }).eq('file_id', fileId);
+    await d1('update cv_sessions set email = ? where file_id = ?', [email, fileId]);
 
     res.json({ success: true });
   } catch (err) {
@@ -66,7 +55,7 @@ module.exports = async (req, res) => {
   }
 };
 
-function buildEmailHTML(name, pdfUrl, docxUrl) {
+function buildEmailHTML(name, docxUrl) {
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -89,18 +78,6 @@ function buildEmailHTML(name, pdfUrl, docxUrl) {
             <p style="margin:0 0 8px;font-size:22px;font-weight:300;color:#fff;">Your CV is ready, ${name.split('_')[0]}!</p>
             <p style="margin:0 0 28px;font-size:15px;color:#888;line-height:1.6;">Your professionally crafted CV has been generated. Download it below — link is valid for <strong style="color:#e8e4dc;">24 hours</strong>.</p>
 
-            ${pdfUrl ? `
-            <!-- PDF Button (legacy order) -->
-            <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:12px;">
-              <tr>
-                <td align="center" style="background:#e05a5a;border-radius:8px;">
-                  <a href="${pdfUrl}" style="display:block;padding:14px 24px;color:#fff;text-decoration:none;font-size:16px;font-weight:600;">
-                    ⬇ Download PDF
-                  </a>
-                </td>
-              </tr>
-            </table>` : ''}
-
             <!-- Word Button -->
             <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:28px;">
               <tr>
@@ -121,7 +98,7 @@ function buildEmailHTML(name, pdfUrl, docxUrl) {
                   <p style="margin:0 0 4px;font-size:13px;color:#c9a84c;text-transform:uppercase;letter-spacing:0.1em;">Add-on · ₹49</p>
                   <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#fff;">LinkedIn Headline + Summary</p>
                   <p style="margin:0 0 14px;font-size:13px;color:#888;line-height:1.6;">AI-crafted LinkedIn profile copy that gets recruiters to click.</p>
-                  <a href="https://makemycv-phi.vercel.app" style="display:inline-block;background:#c9a84c;color:#0a0a0a;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">Get LinkedIn Copy →</a>
+                  <a href="https://makemycv.realplannet.com" style="display:inline-block;background:#c9a84c;color:#0a0a0a;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">Get LinkedIn Copy →</a>
                 </td>
               </tr>
             </table>
@@ -136,7 +113,7 @@ function buildEmailHTML(name, pdfUrl, docxUrl) {
             <p style="margin:0;font-size:12px;color:#444;line-height:1.6;">
               © 2026 Real Plannet · Udyam Registered MSME · Bangalore, India<br>
               <a href="https://realplannet.com" style="color:#555;">realplannet.com</a> ·
-              <a href="https://makemycv-phi.vercel.app/privacy" style="color:#555;">Privacy Policy</a>
+              <a href="https://makemycv.realplannet.com/privacy" style="color:#555;">Privacy Policy</a>
             </p>
           </td>
         </tr>

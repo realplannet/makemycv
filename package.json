@@ -1,20 +1,19 @@
 {
   "name": "makemycv-vercel",
   "version": "1.0.0",
-  "description": "MakeMyCV — Vercel + Supabase deployment",
+  "description": "MakeMyCV \u2014 Vercel + Cloudflare D1 deployment",
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'No build step required'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",
-    "@supabase/supabase-js": "^2.43.4",
     "docxtemplater": "^3.47.0",
     "mammoth": "^1.7.1",
     "pizzip": "^3.1.7",
     "razorpay": "^2.9.2",
     "resend": "^3.2.0",
-    "uuid": "^10.0.0",
+    "uuid": "^11.0.0",
     "docx": "^9.7.1"
   },
   "engines": {

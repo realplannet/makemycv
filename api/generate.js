@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { generateCVFromData, generateCVFromUpload, GenerationFailure } = require('../lib/ai');
 const { renderDOCX }  = require('../lib/docx');
-const { uploadFiles, saveSession, saveFailedGeneration } = require('../lib/supabase');
+const { saveSession, saveFailedGeneration } = require('../lib/db');
 const { sendGenerationFailureAlert } = require('../lib/alert');
 
 module.exports = async (req, res) => {
@@ -70,15 +70,12 @@ module.exports = async (req, res) => {
     //    drops the Puppeteer/Chromium dependency entirely, one less failure point)
     const docxBuffer = await renderDOCX(enhancedCV);
 
-    // 3. Upload to Supabase Storage
+    // 3. Save session record (docx bytes stored base64 directly in the
+    //    row — see lib/db.js). usage/stopReason/model captured for cost
+    //    attribution and to confirm whether prompt caching is engaging.
     const fileId  = uuidv4();
     const safeName = (enhancedCV.name || 'CV').replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '_');
-    const { docxPath } = await uploadFiles(fileId, safeName, docxBuffer);
-
-    // 4. Save session record — usage/stopReason/model captured for cost
-    //    attribution and to confirm whether prompt caching is engaging
-    //    (see supabase-schema-v4.sql).
-    await saveSession(sessionId, fileId, safeName, docxPath, {
+    await saveSession(sessionId, fileId, safeName, docxBuffer, {
       email: contact?.email || enhancedCV.email || null,
       template,
       razorpayOrderId: razorpayOrderId || null,

@@ -5,9 +5,9 @@
  */
 
 const Anthropic = require('@anthropic-ai/sdk');
+const { v4: uuidv4 } = require('uuid');
 const { verifySignature } = require('../lib/payment');
-const { getSession } = require('../lib/supabase');
-const { createClient } = require('@supabase/supabase-js');
+const { getSession, d1 } = require('../lib/db');
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -63,18 +63,10 @@ module.exports = async (req, res) => {
     const linkedin = JSON.parse(text);
 
     // Save to DB
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+    await d1(
+      'insert into linkedin_orders (id, session_id, file_id, payment_id, headline, about, created_at) values (?,?,?,?,?,?,?)',
+      [uuidv4(), sessionId, fileId, paymentId, linkedin.headline, linkedin.about, new Date().toISOString()]
     );
-    await supabase.from('linkedin_orders').insert({
-      session_id:  sessionId,
-      file_id:     fileId,
-      payment_id:  paymentId,
-      headline:    linkedin.headline,
-      about:       linkedin.about,
-      created_at:  new Date().toISOString(),
-    });
 
     res.json({ success: true, linkedin });
   } catch (err) {

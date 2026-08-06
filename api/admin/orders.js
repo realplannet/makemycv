@@ -3,7 +3,7 @@
  * Protected by ADMIN_SECRET header
  */
 
-const { createClient } = require('@supabase/supabase-js');
+const { d1 } = require('../../lib/db');
 
 function auth(req) {
   const secret = req.headers['x-admin-secret'];
@@ -15,11 +15,6 @@ module.exports = async (req, res) => {
   if (!auth(req)) return res.status(401).json({ error: 'Unauthorised' });
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-
   const page   = Math.max(1, parseInt(req.query.page  || '1', 10));
   const limit  = Math.min(100, parseInt(req.query.limit || '20', 10));
   const search = (req.query.search || '').trim();
@@ -27,24 +22,36 @@ module.exports = async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    let query = supabase
-      .from('cv_sessions')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
+    const where  = [];
+    const params = [];
     if (search) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+      where.push('(name like ? or email like ?)');
+      params.push(`%${search}%`, `%${search}%`);
     }
     if (status) {
-      query = query.eq('status', status);
+      where.push('status = ?');
+      params.push(status);
     }
+    const whereSql = where.length ? `where ${where.join(' and ')}` : '';
 
-    const { data, count, error } = await query;
-    if (error) throw error;
+    // docx_data excluded from the select list — it's base64 file content,
+    // not needed for an orders table and would bloat the response.
+    const [countR, ordersR] = await Promise.all([
+      d1(`select count(*) as c from cv_sessions ${whereSql}`, params),
+      d1(
+        `select id, session_id, file_id, name, email, template, mode,
+                razorpay_order_id, razorpay_payment_id, amount_paise, status,
+                paid, error_message, error_reason, created_at
+         from cv_sessions ${whereSql}
+         order by created_at desc limit ? offset ?`,
+        [...params, limit, offset]
+      ),
+    ]);
+
+    const count = countR.results[0].c;
 
     res.json({
-      orders: data,
+      orders: ordersR.results,
       total:  count,
       page,
       limit,

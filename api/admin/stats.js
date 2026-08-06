@@ -3,7 +3,7 @@
  * Returns dashboard KPIs
  */
 
-const { createClient } = require('@supabase/supabase-js');
+const { d1 } = require('../../lib/db');
 
 function auth(req) {
   const secret = req.headers['x-admin-secret'];
@@ -15,57 +15,40 @@ module.exports = async (req, res) => {
   if (!auth(req)) return res.status(401).json({ error: 'Unauthorised' });
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-
   try {
     const now   = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const month = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-    const [
-      { count: total },
-      { count: todayCount },
-      { count: monthCount },
-      { count: linkedinCount },
-      { data: recentOrders },
-      { data: templateStats },
-    ] = await Promise.all([
-      supabase.from('cv_sessions').select('*', { count: 'exact', head: true }).eq('paid', true),
-      supabase.from('cv_sessions').select('*', { count: 'exact', head: true }).eq('paid', true).gte('created_at', today),
-      supabase.from('cv_sessions').select('*', { count: 'exact', head: true }).eq('paid', true).gte('created_at', month),
-      supabase.from('linkedin_orders').select('*', { count: 'exact', head: true }),
-      supabase.from('cv_sessions').select('name,email,template,amount_paise,created_at').eq('paid', true).order('created_at', { ascending: false }).limit(5),
-      supabase.from('cv_sessions').select('template').eq('paid', true),
+    const [totalR, todayR, monthR, linkedinR, recentR, templateR] = await Promise.all([
+      d1('select count(*) as c from cv_sessions where paid = 1'),
+      d1('select count(*) as c from cv_sessions where paid = 1 and created_at >= ?', [today]),
+      d1('select count(*) as c from cv_sessions where paid = 1 and created_at >= ?', [month]),
+      d1('select count(*) as c from linkedin_orders'),
+      d1('select name,email,template,amount_paise,created_at from cv_sessions where paid = 1 order by created_at desc limit 5'),
+      d1('select template from cv_sessions where paid = 1'),
     ]);
 
-    // Template breakdown
+    const total        = totalR.results[0].c;
+    const todayCount    = todayR.results[0].c;
+    const monthCount    = monthR.results[0].c;
+    const linkedinCount = linkedinR.results[0].c;
+    const recentOrders  = recentR.results;
+
     const tCount = {};
-    (templateStats || []).forEach(r => {
+    templateR.results.forEach(r => {
       tCount[r.template || 'classic'] = (tCount[r.template || 'classic'] || 0) + 1;
     });
 
-    // Revenue
     const revenueTotal = (total || 0) * 199;
     const revenueMonth = (monthCount || 0) * 199;
 
     res.json({
-      cvs: {
-        total:   total || 0,
-        today:   todayCount || 0,
-        month:   monthCount || 0,
-      },
-      revenue: {
-        total_inr: revenueTotal,
-        month_inr: revenueMonth,
-      },
-      linkedin: {
-        total: linkedinCount || 0,
-      },
+      cvs: { total: total || 0, today: todayCount || 0, month: monthCount || 0 },
+      revenue: { total_inr: revenueTotal, month_inr: revenueMonth },
+      linkedin: { total: linkedinCount || 0 },
       templates: tCount,
-      recent:    recentOrders || [],
+      recent: recentOrders || [],
     });
   } catch (err) {
     console.error('Stats error:', err);
