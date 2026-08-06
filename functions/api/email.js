@@ -5,55 +5,52 @@
  * Links point at /api/download (streams from D1 directly) instead of an
  * object-storage signed URL — see lib/db.js.
  */
-
-const { getSession, d1 } = require('../lib/db');
+import { Resend } from 'resend';
+import { getSession, d1 } from '../../lib/db.js';
+import { json, readJson } from '../../lib/http.js';
 
 const SITE_URL = 'https://makemycv.realplannet.com';
 
-module.exports = async (req, res) => {
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  const { email, fileId } = req.body;
+export async function onRequestPost({ request, env }) {
+  const { email, fileId } = await readJson(request);
 
   if (!email || !email.includes('@')) {
-    return res.status(400).json({ error: 'Valid email required' });
+    return json({ error: 'Valid email required' }, 400);
   }
   if (!fileId) {
-    return res.status(400).json({ error: 'fileId required' });
+    return json({ error: 'fileId required' }, 400);
   }
 
   try {
-    const session = await getSession(fileId);
-    if (!session) return res.status(404).json({ error: 'Files not found or expired' });
+    const session = await getSession(fileId, env);
+    if (!session) return json({ error: 'Files not found or expired' }, 404);
 
     const age = Date.now() - new Date(session.created_at).getTime();
     if (age > 24 * 60 * 60 * 1000) {
-      return res.status(410).json({ error: 'Files expired. Links are valid for 24 hours only.' });
+      return json({ error: 'Files expired. Links are valid for 24 hours only.' }, 410);
     }
 
     const docxUrl = `${SITE_URL}/api/download?fileId=${fileId}&type=docx`;
     const name = session.name?.replace(/_/g, ' ') || 'Your CV';
 
-    const { Resend } = require('resend');
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const resend = new Resend(env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: `MakeMyCV <noreply@${process.env.EMAIL_DOMAIN || 'realplannet.com'}>`,
+      from: `MakeMyCV <noreply@${env.EMAIL_DOMAIN || 'realplannet.com'}>`,
       to: email,
       subject: `Your CV is ready — ${name}`,
       html: buildEmailHTML(name, docxUrl),
     });
 
     // Save email to session record
-    await d1('update cv_sessions set email = ? where file_id = ?', [email, fileId]);
+    await d1('update cv_sessions set email = ? where file_id = ?', [email, fileId], env);
 
-    res.json({ success: true });
+    return json({ success: true });
   } catch (err) {
     console.error('Email error:', err);
-    res.status(500).json({ error: 'Failed to send email. Please download directly.' });
+    return json({ error: 'Failed to send email. Please download directly.' }, 500);
   }
-};
+}
 
 function buildEmailHTML(name, docxUrl) {
   return `<!DOCTYPE html>

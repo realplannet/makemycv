@@ -3,13 +3,11 @@
  * Body: { sessionId, fileId, orderId, paymentId, signature }
  * Verifies ₹49 Razorpay payment, generates LinkedIn headline + summary via Claude
  */
-
-const Anthropic = require('@anthropic-ai/sdk');
-const { v4: uuidv4 } = require('uuid');
-const { verifySignature } = require('../lib/payment');
-const { getSession, d1 } = require('../lib/db');
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import Anthropic from '@anthropic-ai/sdk';
+import { v4 as uuidv4 } from 'uuid';
+import { verifySignature } from '../../lib/payment.js';
+import { getSession, d1 } from '../../lib/db.js';
+import { json, readJson } from '../../lib/http.js';
 
 const LINKEDIN_PROMPT = `You are a LinkedIn profile expert. Based on the CV data provided, write:
 
@@ -26,24 +24,21 @@ Return ONLY valid JSON:
   "about": "paragraph 1\\n\\nparagraph 2\\n\\nparagraph 3"
 }`;
 
-module.exports = async (req, res) => {
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
+export async function onRequestPost({ request, env }) {
   try {
-    const { sessionId, fileId, orderId, paymentId, signature } = req.body;
+    const { sessionId, fileId, orderId, paymentId, signature } = await readJson(request);
 
     // Verify payment
-    if (!verifySignature(orderId, paymentId, signature)) {
-      return res.status(400).json({ error: 'Payment verification failed' });
+    if (!verifySignature(orderId, paymentId, signature, env)) {
+      return json({ error: 'Payment verification failed' }, 400);
     }
 
     // Get CV data from session
-    const session = await getSession(fileId);
-    if (!session) return res.status(404).json({ error: 'Session not found' });
+    const session = await getSession(fileId, env);
+    if (!session) return json({ error: 'Session not found' }, 404);
 
     // Generate LinkedIn copy
-    // Model was 'claude-sonnet-4-20250514' — deprecated/404s (same bug fixed in lib/ai.js).
+    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
@@ -65,12 +60,13 @@ module.exports = async (req, res) => {
     // Save to DB
     await d1(
       'insert into linkedin_orders (id, session_id, file_id, payment_id, headline, about, created_at) values (?,?,?,?,?,?,?)',
-      [uuidv4(), sessionId, fileId, paymentId, linkedin.headline, linkedin.about, new Date().toISOString()]
+      [uuidv4(), sessionId, fileId, paymentId, linkedin.headline, linkedin.about, new Date().toISOString()],
+      env
     );
 
-    res.json({ success: true, linkedin });
+    return json({ success: true, linkedin });
   } catch (err) {
     console.error('LinkedIn error:', err);
-    res.status(500).json({ error: 'LinkedIn generation failed. Please try again.' });
+    return json({ error: 'LinkedIn generation failed. Please try again.' }, 500);
   }
-};
+}

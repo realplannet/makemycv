@@ -1,13 +1,11 @@
-const { v4: uuidv4 } = require('uuid');
-const { generateCVFromData, generateCVFromUpload, GenerationFailure } = require('../lib/ai');
-const { renderDOCX }  = require('../lib/docx');
-const { saveSession, saveFailedGeneration } = require('../lib/db');
-const { sendGenerationFailureAlert } = require('../lib/alert');
+import { v4 as uuidv4 } from 'uuid';
+import { generateCVFromData, generateCVFromUpload, GenerationFailure } from '../../lib/ai.js';
+import { renderDOCX } from '../../lib/docx.js';
+import { saveSession, saveFailedGeneration } from '../../lib/db.js';
+import { sendGenerationFailureAlert } from '../../lib/alert.js';
+import { json, readJson } from '../../lib/http.js';
 
-module.exports = async (req, res) => {
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
+export async function onRequestPost({ request, env }) {
   const {
     sessionId,
     template = 'executive',
@@ -19,10 +17,10 @@ module.exports = async (req, res) => {
     contact,                // upload mode: { email, phone }
     razorpayOrderId,
     razorpayPaymentId,
-  } = req.body;
+  } = await readJson(request);
 
   if (!sessionId) {
-    return res.status(400).json({ error: 'sessionId is required' });
+    return json({ error: 'sessionId is required' }, 400);
   }
 
   let result; // { cv, usage, stopReason, model }
@@ -33,34 +31,33 @@ module.exports = async (req, res) => {
     //    catch is either non-retryable or exhausted its retries.
     if (mode === 'upload') {
       if (!contact?.email || !contact?.phone) {
-        return res.status(400).json({ error: 'contact email and phone are required' });
+        return json({ error: 'contact email and phone are required' }, 400);
       }
-      result = await generateCVFromUpload({ uploadedFile, notes, guidedAdds, contact });
+      result = await generateCVFromUpload({ uploadedFile, notes, guidedAdds, contact }, env);
     } else {
-      if (!cvData) return res.status(400).json({ error: 'cvData is required for scratch mode' });
-      result = await generateCVFromData(cvData);
+      if (!cvData) return json({ error: 'cvData is required for scratch mode' }, 400);
+      result = await generateCVFromData(cvData, env);
     }
   } catch (err) {
     // Payment already happened before this endpoint is ever called (see
     // verifyAndGenerate in app.js) — so a failure here means a customer
     // has paid ₹199 and gotten nothing automatically. Record it (nothing
-    // else does) and alert so it can be resolved manually, rather than
-    // just logging to Vercel's ephemeral function logs.
+    // else does) and alert so it can be resolved manually.
     console.error('Generate error:', err);
     await saveFailedGeneration(sessionId, {
       razorpayOrderId, razorpayPaymentId, contact, template, mode, error: err,
-    });
+    }, env);
     await sendGenerationFailureAlert({
       sessionId, razorpayOrderId, razorpayPaymentId, contact, template, mode, error: err,
-    });
+    }, env);
 
     const reason = err instanceof GenerationFailure ? err.reason : null;
-    return res.status(502).json({
+    return json({
       error: 'Your payment was successful, but we hit a problem generating your CV. ' +
              'Our team has been notified and will email your CV within a few hours — ' +
              'if you don’t hear back, contact hello@realplannet.com with your payment ID.',
       reason,
-    });
+    }, 502);
   }
 
   const { cv: enhancedCV, usage, stopReason, model } = result;
@@ -81,9 +78,9 @@ module.exports = async (req, res) => {
       razorpayOrderId: razorpayOrderId || null,
       razorpayPaymentId: razorpayPaymentId || null,
       usage, stopReason, model,
-    });
+    }, env);
 
-    res.json({
+    return json({
       success:      true,
       fileId,
       name:         safeName,
@@ -95,14 +92,14 @@ module.exports = async (req, res) => {
     console.error('Generate error (post-AI):', err);
     await saveFailedGeneration(sessionId, {
       razorpayOrderId, razorpayPaymentId, contact, template, mode, error: err,
-    });
+    }, env);
     await sendGenerationFailureAlert({
       sessionId, razorpayOrderId, razorpayPaymentId, contact, template, mode, error: err,
-    });
-    res.status(502).json({
+    }, env);
+    return json({
       error: 'Your payment was successful, but we hit a problem finishing your CV file. ' +
              'Our team has been notified and will email your CV within a few hours — ' +
              'if you don’t hear back, contact hello@realplannet.com with your payment ID.',
-    });
+    }, 502);
   }
-};
+}
