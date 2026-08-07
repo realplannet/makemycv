@@ -5,12 +5,12 @@
      • Scratch  → form (6 steps) → template → payment → generating → download
 ───────────────────────────────────────────────────────────────── */
 
-const API_BASE = '';  // same origin — Vercel serves frontend + API together
+const API_BASE = '';  // same origin — Cloudflare Pages serves frontend + Functions together
 
-// TEMP incident flag — Supabase backend is unreachable (2026-08-05).
-// Blocks new payments so customers aren't charged for a CV we can't generate.
-// Set back to false once Supabase is confirmed restored.
-const MAINTENANCE_MODE = true;
+// Incident flag from the 2026-08-05 Supabase outage — backend has since been
+// fully migrated to Cloudflare Pages + D1 (see wrangler.toml, functions/,
+// lib/db.js) and verified end-to-end. Checkout re-enabled 2026-08-07.
+const MAINTENANCE_MODE = false;
 
 const STEPS = [
   { id: 'personal',  label: 'Personal'  },
