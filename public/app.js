@@ -936,6 +936,13 @@ const App = (() => {
       if (failedNote) failedNote.style.display = 'none';
     }
 
+    // Email is already known (required on both flows before payment —
+    // see cvData.personal.email / detailsEmail validation), so send it
+    // automatically instead of making the candidate type it again. Only
+    // fall back to a manual entry box if the automatic send fails.
+    const knownEmail = (flowMode === 'upload' ? detailsEmail : cvData.personal.email || '').trim();
+    autoSendEmail(knownEmail);
+
     clearDraft();
   }
 
@@ -944,28 +951,58 @@ const App = (() => {
   }
 
   // ── Email delivery ─────────────────────────────────────────────
-  async function sendEmail() {
-    const email = document.getElementById('dl-email')?.value.trim();
-    const msg = document.getElementById('email-msg');
+  async function autoSendEmail(email) {
+    const status = document.getElementById('email-status');
+    const retryRow = document.getElementById('email-retry-row');
     if (!email || !email.includes('@')) {
-      msg.textContent = 'Please enter a valid email address.';
-      msg.className = 'email-msg err';
+      // Shouldn't happen (email is required pre-payment on both flows) —
+      // but if it somehow does, fall back to manual entry rather than
+      // silently doing nothing.
+      if (status) status.textContent = 'Enter your email to get a copy:';
+      if (retryRow) retryRow.style.display = '';
       return;
     }
+    const ok = await deliverEmail(email);
+    if (ok) {
+      if (status) status.textContent = 'A copy has been sent to your email address.';
+      if (retryRow) retryRow.style.display = 'none';
+      trackEvent('email_delivery_auto');
+    } else {
+      if (status) status.textContent = 'Could not send automatically — enter your email below:';
+      if (retryRow) { retryRow.style.display = ''; const input = document.getElementById('dl-email'); if (input) input.value = email; }
+    }
+  }
+
+  async function deliverEmail(email) {
     try {
       const res = await fetch('/api/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, fileId }),
       });
-      if (res.ok) {
-        msg.textContent = '✓ Files sent to ' + email;
-        msg.className = 'email-msg ok';
-        trackEvent('email_delivery_used');
-      } else {
-        throw new Error('Send failed');
-      }
+      return res.ok;
     } catch (_) {
+      return false;
+    }
+  }
+
+  // Manual retry — only shown if the automatic send (above) failed.
+  async function sendEmail() {
+    const email = document.getElementById('dl-email')?.value.trim();
+    const msg = document.getElementById('email-msg');
+    const status = document.getElementById('email-status');
+    if (!email || !email.includes('@')) {
+      msg.textContent = 'Please enter a valid email address.';
+      msg.className = 'email-msg err';
+      return;
+    }
+    const ok = await deliverEmail(email);
+    if (ok) {
+      msg.textContent = '';
+      if (status) status.textContent = 'A copy has been sent to your email address.';
+      document.getElementById('email-retry-row').style.display = 'none';
+      trackEvent('email_delivery_used');
+    } else {
       msg.textContent = 'Could not send email. Please download directly above.';
       msg.className = 'email-msg err';
     }

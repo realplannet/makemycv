@@ -438,8 +438,8 @@
       <p id="linkedin-failed-note" class="email-msg err" style="display:none;">We hit a snag generating your LinkedIn copy — we'll email it to you within a few hours. No need to do anything.</p>
 
       <div class="email-delivery">
-        <p class="email-label">Or send to your email</p>
-        <div class="email-row">
+        <p class="email-label" id="email-status">Sending a copy to your email address…</p>
+        <div class="email-row" id="email-retry-row" style="display:none;">
           <input type="email" id="dl-email" class="form-input" placeholder="your@email.com" />
           <button class="btn-primary" onclick="App.sendEmail()">Send</button>
         </div>
