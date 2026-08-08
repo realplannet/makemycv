@@ -335,6 +335,11 @@ input, textarea, select { font-family: var(--font-body); }
 .order-included { color: var(--text-dim); font-size: 13px; }
 .order-divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
 .order-total { font-weight: 700; font-size: 17px; }
+.order-addon-row { cursor: pointer; }
+.addon-check-label { display: flex; align-items: center; gap: 10px; }
+.addon-check-label input[type="checkbox"] {
+  width: 17px; height: 17px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0;
+}
 .trust-row {
   display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
   font-size: 12px; color: var(--text-dim); margin-bottom: 24px;
@@ -384,6 +389,8 @@ input, textarea, select { font-family: var(--font-body); }
 .btn-pdf:hover  { background: #c94444; color: #fff; }
 .btn-docx { background: #2b5eb7; color: #fff; }
 .btn-docx:hover { background: #1e48a0; color: #fff; }
+.btn-linkedin { background: #0A66C2; color: #fff; }
+.btn-linkedin:hover { background: #084d94; color: #fff; }
 .email-delivery { margin-bottom: 24px; }
 .email-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
 .email-row { display: flex; gap: 10px; }
@@ -391,19 +398,6 @@ input, textarea, select { font-family: var(--font-body); }
 .email-msg { font-size: 13px; margin-top: 8px; min-height: 18px; }
 .email-msg.ok { color: var(--gold); }
 .email-msg.err { color: #e05a5a; }
-.upsell-card {
-  background: var(--bg-2); border: 1px solid var(--border-gold);
-  border-radius: var(--radius); padding: 20px; margin-bottom: 24px;
-}
-.upsell-badge {
-  display: inline-block; font-size: 10px; text-transform: uppercase;
-  letter-spacing: 0.1em; color: var(--gold); border: 1px solid var(--border-gold);
-  border-radius: 10px; padding: 2px 8px; margin-bottom: 8px;
-}
-.upsell-title { font-weight: 600; font-size: 16px; margin-bottom: 6px; }
-.upsell-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.6; }
-.upsell-price { font-size: 20px; font-weight: 700; color: var(--gold); margin-bottom: 12px; }
-.btn-upsell { width: 100%; justify-content: center; }
 .share-row { font-size: 13px; color: var(--text-dim); text-align: center; }
 .share-link { color: var(--gold); }
 

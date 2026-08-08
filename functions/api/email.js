@@ -3,10 +3,12 @@
  * Body: { email, fileId }
  * Sends the Word (.docx) download link to user's email via Resend.
  * Links point at /api/download (streams from D1 directly) instead of an
- * object-storage signed URL — see lib/db.js.
+ * object-storage signed URL — see lib/db.js. If the order included the
+ * LinkedIn add-on (checkout-time, +₹99 — see functions/api/generate.js),
+ * a second download link is included in the same email.
  */
 import { Resend } from 'resend';
-import { getSession, d1 } from '../../lib/db.js';
+import { getSession, getLinkedInOrder, d1 } from '../../lib/db.js';
 import { json, readJson } from '../../lib/http.js';
 
 const SITE_URL = 'https://makemycv.realplannet.com';
@@ -33,13 +35,21 @@ export async function onRequestPost({ request, env }) {
     const docxUrl = `${SITE_URL}/api/download?fileId=${fileId}&type=docx`;
     const name = session.name?.replace(/_/g, ' ') || 'Your CV';
 
+    // Only include a LinkedIn link if that add-on was purchased AND
+    // actually generated successfully (saveLinkedInOrder is only called
+    // on success — see functions/api/generate.js).
+    const linkedinOrder = await getLinkedInOrder(fileId, env);
+    const linkedinUrl = linkedinOrder && linkedinOrder.docx_data
+      ? `${SITE_URL}/api/download?fileId=${fileId}&type=linkedin`
+      : null;
+
     const resend = new Resend(env.RESEND_API_KEY);
 
     await resend.emails.send({
       from: `MakeMyCV <noreply@${env.EMAIL_DOMAIN || 'realplannet.com'}>`,
       to: email,
       subject: `Your CV is ready — ${name}`,
-      html: buildEmailHTML(name, docxUrl),
+      html: buildEmailHTML(name, docxUrl, linkedinUrl),
     });
 
     // Save email to session record
@@ -52,7 +62,18 @@ export async function onRequestPost({ request, env }) {
   }
 }
 
-function buildEmailHTML(name, docxUrl) {
+function buildEmailHTML(name, docxUrl, linkedinUrl) {
+  const linkedinButton = linkedinUrl ? `
+            <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:28px;">
+              <tr>
+                <td align="center" style="background:#0A66C2;border-radius:8px;">
+                  <a href="${linkedinUrl}" style="display:block;padding:14px 24px;color:#fff;text-decoration:none;font-size:16px;font-weight:600;">
+                    ⬇ Download LinkedIn Copy (.docx)
+                  </a>
+                </td>
+              </tr>
+            </table>` : '';
+
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -76,7 +97,7 @@ function buildEmailHTML(name, docxUrl) {
             <p style="margin:0 0 28px;font-size:15px;color:#888;line-height:1.6;">Your professionally crafted CV has been generated. Download it below — link is valid for <strong style="color:#e8e4dc;">24 hours</strong>.</p>
 
             <!-- Word Button -->
-            <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:28px;">
+            <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:${linkedinUrl ? '14' : '28'}px;">
               <tr>
                 <td align="center" style="background:#2b5eb7;border-radius:8px;">
                   <a href="${docxUrl}" style="display:block;padding:14px 24px;color:#fff;text-decoration:none;font-size:16px;font-weight:600;">
@@ -85,21 +106,7 @@ function buildEmailHTML(name, docxUrl) {
                 </td>
               </tr>
             </table>
-
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:0 0 24px;">
-
-            <!-- Upsell -->
-            <table cellpadding="0" cellspacing="0" width="100%" style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;margin-bottom:24px;">
-              <tr>
-                <td style="padding:20px;">
-                  <p style="margin:0 0 4px;font-size:13px;color:#c9a84c;text-transform:uppercase;letter-spacing:0.1em;">Add-on · ₹49</p>
-                  <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#fff;">LinkedIn Headline + Summary</p>
-                  <p style="margin:0 0 14px;font-size:13px;color:#888;line-height:1.6;">AI-crafted LinkedIn profile copy that gets recruiters to click.</p>
-                  <a href="https://makemycv.realplannet.com" style="display:inline-block;background:#c9a84c;color:#0a0a0a;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">Get LinkedIn Copy →</a>
-                </td>
-              </tr>
-            </table>
-
+${linkedinButton}
             <p style="margin:0;font-size:13px;color:#444;line-height:1.6;">Need help? Reply to this email or write to <a href="mailto:hello@realplannet.com" style="color:#c9a84c;">hello@realplannet.com</a></p>
           </td>
         </tr>

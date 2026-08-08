@@ -65,6 +65,7 @@ const App = (() => {
   let sessionId = null;
   let fileId = null;
   let flowMode = 'scratch'; // 'scratch' | 'upload'
+  let includeLinkedin = false; // checkout-time add-on, +₹99 — see screen-payment
   let cvData = {
     personal: {},
     summary: '',
@@ -711,8 +712,31 @@ const App = (() => {
     if (!selectedTemplate) { showToast('Please select a template.', 'error'); return; }
     document.getElementById('payment-template-name').textContent =
       selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1);
+    includeLinkedin = false;
+    const addonBox = document.getElementById('addon-linkedin');
+    if (addonBox) addonBox.checked = false;
+    updatePaymentTotal();
     pushLead('template_selected');
     showScreen('screen-payment');
+  }
+
+  // ── LinkedIn add-on toggle (checkout-time, +₹99) ─────────────────
+  function toggleLinkedinAddon() {
+    includeLinkedin = !!document.getElementById('addon-linkedin')?.checked;
+    trackEvent('linkedin_addon_toggled', { included: includeLinkedin });
+    updatePaymentTotal();
+  }
+
+  function paymentTotalRupees() {
+    return includeLinkedin ? 298 : 199;
+  }
+
+  function updatePaymentTotal() {
+    const total = paymentTotalRupees();
+    const totalEl = document.getElementById('payment-total');
+    if (totalEl) totalEl.textContent = `₹${total}`;
+    const btn = document.getElementById('btn-pay');
+    if (btn && !btn.disabled) btn.textContent = `Pay ₹${total} Securely`;
   }
 
   // ── Payment ────────────────────────────────────────────────────
@@ -724,14 +748,14 @@ const App = (() => {
     const btn = document.getElementById('btn-pay');
     btn.disabled = true;
     btn.textContent = 'Creating order…';
-    trackEvent('payment_initiated', { template: selectedTemplate, flow_mode: flowMode });
+    trackEvent('payment_initiated', { template: selectedTemplate, flow_mode: flowMode, include_linkedin: includeLinkedin });
     pushLead('payment_initiated');
 
     try {
       const res = await fetch(`${API_BASE}/api/payment/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId, includeLinkedin }),
       });
       const order = await res.json();
       if (!res.ok) throw new Error(order.error || 'Payment init failed');
@@ -741,7 +765,7 @@ const App = (() => {
         amount: order.amount,
         currency: 'INR',
         name: 'MakeMyCV',
-        description: 'Professional CV — Word (.docx)',
+        description: includeLinkedin ? 'Professional CV + LinkedIn Copy (Word .docx)' : 'Professional CV — Word (.docx)',
         image: '/assets/makemycv-mark.svg',
         order_id: order.orderId,
         handler: async (response) => {
@@ -756,7 +780,7 @@ const App = (() => {
         modal: {
           ondismiss: () => {
             btn.disabled = false;
-            btn.textContent = 'Pay ₹199 Securely';
+            updatePaymentTotal();
             trackEvent('payment_cancelled');
           }
         }
@@ -767,7 +791,7 @@ const App = (() => {
     } catch (err) {
       showToast(err.message, 'error');
       btn.disabled = false;
-      btn.textContent = 'Pay ₹199 Securely';
+      updatePaymentTotal();
     }
   }
 
@@ -803,11 +827,13 @@ const App = (() => {
           guidedAdds: buildGuidedPayload(),
           contact: { email: detailsEmail, phone: detailsPhone },
           razorpayOrderId: orderId, razorpayPaymentId: payment.razorpay_payment_id,
+          includeLinkedin,
         }
       : {
           sessionId, template: selectedTemplate, mode: 'scratch',
           cvData: buildCVPayload(),
           razorpayOrderId: orderId, razorpayPaymentId: payment.razorpay_payment_id,
+          includeLinkedin,
         };
 
     const genRes = await fetch(`${API_BASE}/api/generate`, {
@@ -890,6 +916,26 @@ const App = (() => {
     const dlDocx = document.getElementById('dl-docx');
     if (dlDocx) { dlDocx.href = docxUrl; dlDocx.download = genData.docxFilename; }
 
+    const dlLinkedin = document.getElementById('dl-linkedin');
+    const failedNote = document.getElementById('linkedin-failed-note');
+    if (genData.linkedin?.success) {
+      const linkedinUrl = `/api/download?fileId=${genData.fileId}&type=linkedin`;
+      if (dlLinkedin) {
+        dlLinkedin.href = linkedinUrl;
+        dlLinkedin.download = genData.linkedin.docxFilename;
+        dlLinkedin.style.display = '';
+      }
+      if (failedNote) failedNote.style.display = 'none';
+    } else if (genData.linkedin && !genData.linkedin.success) {
+      // Paid for it, CV still delivered fine — LinkedIn copy failed and
+      // was already alerted server-side (see functions/api/generate.js).
+      if (dlLinkedin) dlLinkedin.style.display = 'none';
+      if (failedNote) failedNote.style.display = '';
+    } else {
+      if (dlLinkedin) dlLinkedin.style.display = 'none';
+      if (failedNote) failedNote.style.display = 'none';
+    }
+
     clearDraft();
   }
 
@@ -923,12 +969,6 @@ const App = (() => {
       msg.textContent = 'Could not send email. Please download directly above.';
       msg.className = 'email-msg err';
     }
-  }
-
-  // ── LinkedIn upsell ────────────────────────────────────────────
-  function buyLinkedIn() {
-    trackEvent('linkedin_upsell_clicked');
-    showToast('LinkedIn add-on coming soon! Contact hello@realplannet.com', 'info');
   }
 
   // ── Upload flow ────────────────────────────────────────────────
@@ -1108,8 +1148,9 @@ const App = (() => {
     addEdu, removeEdu,
     removeTag,
     selectTemplate, proceedToPayment,
+    toggleLinkedinAddon,
     initiatePayment,
-    sendEmail, buyLinkedIn,
+    sendEmail,
     trackEvent, trackDownload,
     // Upload flow
     uploadDragOver, uploadDragLeave, uploadDrop,

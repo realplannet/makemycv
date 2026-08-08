@@ -55,6 +55,13 @@ create table if not exists cv_leads (
 create index if not exists idx_cv_leads_email on cv_leads(email);
 create index if not exists idx_cv_leads_created_at on cv_leads(created_at desc);
 
+-- Reused for the checkout-time bundled add-on (+₹99, see
+-- functions/api/generate.js) since 2026-08-07 — originally built for a
+-- separate ₹49 post-purchase upsell flow (now deprecated, see
+-- functions/api/linkedin.js). payment_id is the SAME razorpay_payment_id
+-- as the parent cv_sessions row when bundled, not a distinct charge.
+-- docx_data added via ALTER TABLE 2026-08-07, same base64-in-row pattern
+-- as cv_sessions.docx_data.
 create table if not exists linkedin_orders (
   id          text primary key,
   session_id  text not null,
@@ -62,6 +69,7 @@ create table if not exists linkedin_orders (
   payment_id  text,
   headline    text,
   about       text,
+  docx_data   text,
   created_at  text not null
 );
 

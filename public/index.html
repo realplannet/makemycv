@@ -373,9 +373,17 @@
           <span class="order-included">Included</span>
         </div>
         <div class="order-divider"></div>
+        <label class="order-row order-addon-row" for="addon-linkedin">
+          <span class="addon-check-label">
+            <input type="checkbox" id="addon-linkedin" onchange="App.toggleLinkedinAddon()" />
+            <span>+ LinkedIn Headline &amp; Summary (Word .docx)</span>
+          </span>
+          <span class="order-price">+₹99</span>
+        </label>
+        <div class="order-divider"></div>
         <div class="order-row order-total">
           <span>Total</span>
-          <span>₹199</span>
+          <span id="payment-total">₹199</span>
         </div>
       </div>
       <div class="trust-row">
@@ -422,7 +430,12 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Download Word
         </a>
+        <a id="dl-linkedin" class="btn-download btn-linkedin" href="#" download onclick="App.trackDownload('linkedin')" style="display:none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.114 20.452H3.558V9h3.556v11.452z"/></svg>
+          Download LinkedIn Copy
+        </a>
       </div>
+      <p id="linkedin-failed-note" class="email-msg err" style="display:none;">We hit a snag generating your LinkedIn copy — we'll email it to you within a few hours. No need to do anything.</p>
 
       <div class="email-delivery">
         <p class="email-label">Or send to your email</p>
@@ -431,14 +444,6 @@
           <button class="btn-primary" onclick="App.sendEmail()">Send</button>
         </div>
         <div id="email-msg" class="email-msg"></div>
-      </div>
-
-      <div class="upsell-card">
-        <div class="upsell-badge">Add-on</div>
-        <div class="upsell-title">LinkedIn Headline + Summary</div>
-        <div class="upsell-desc">AI-crafted LinkedIn profile headline and 3-paragraph summary, optimised for recruiters to find you.</div>
-        <div class="upsell-price">₹49 extra</div>
-        <button class="btn-ghost btn-upsell" onclick="App.buyLinkedIn()">Add LinkedIn Copy →</button>
       </div>
 
       <div class="share-row">

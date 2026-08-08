@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { generateCVFromData, generateCVFromUpload, GenerationFailure } from '../../lib/ai.js';
-import { renderDOCX } from '../../lib/docx.js';
-import { saveSession, saveFailedGeneration } from '../../lib/db.js';
+import { renderDOCX, renderLinkedInDOCX } from '../../lib/docx.js';
+import { saveSession, saveFailedGeneration, saveLinkedInOrder } from '../../lib/db.js';
 import { sendGenerationFailureAlert } from '../../lib/alert.js';
+import { generateLinkedInCopy } from '../../lib/linkedin.js';
 import { json, readJson } from '../../lib/http.js';
 
 export async function onRequestPost({ request, env }) {
@@ -17,6 +18,7 @@ export async function onRequestPost({ request, env }) {
     contact,                // upload mode: { email, phone }
     razorpayOrderId,
     razorpayPaymentId,
+    includeLinkedin,        // checkout-time add-on, +₹99 (see functions/api/payment/create.js)
   } = await readJson(request);
 
   if (!sessionId) {
@@ -41,8 +43,9 @@ export async function onRequestPost({ request, env }) {
   } catch (err) {
     // Payment already happened before this endpoint is ever called (see
     // verifyAndGenerate in app.js) — so a failure here means a customer
-    // has paid ₹199 and gotten nothing automatically. Record it (nothing
-    // else does) and alert so it can be resolved manually.
+    // has paid ₹199 (or ₹298 with the LinkedIn add-on) and gotten nothing
+    // automatically. Record it (nothing else does) and alert so it can be
+    // resolved manually.
     console.error('Generate error:', err);
     await saveFailedGeneration(sessionId, {
       razorpayOrderId, razorpayPaymentId, contact, template, mode, error: err,
@@ -61,6 +64,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const { cv: enhancedCV, usage, stopReason, model } = result;
+  let fileId, safeName;
 
   try {
     // 2. Generate DOCX (PDF generation removed — Word is fully editable and this
@@ -70,8 +74,8 @@ export async function onRequestPost({ request, env }) {
     // 3. Save session record (docx bytes stored base64 directly in the
     //    row — see lib/db.js). usage/stopReason/model captured for cost
     //    attribution and to confirm whether prompt caching is engaging.
-    const fileId  = uuidv4();
-    const safeName = (enhancedCV.name || 'CV').replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '_');
+    fileId  = uuidv4();
+    safeName = (enhancedCV.name || 'CV').replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '_');
     await saveSession(sessionId, fileId, safeName, docxBuffer, {
       email: contact?.email || enhancedCV.email || null,
       template,
@@ -79,13 +83,6 @@ export async function onRequestPost({ request, env }) {
       razorpayPaymentId: razorpayPaymentId || null,
       usage, stopReason, model,
     }, env);
-
-    return json({
-      success:      true,
-      fileId,
-      name:         safeName,
-      docxFilename: `${safeName}_CV.docx`,
-    });
   } catch (err) {
     // Claude succeeded here — failure is in DOCX render / storage, after
     // we already have a usable CV. Same paid-but-unfulfilled situation.
@@ -102,4 +99,35 @@ export async function onRequestPost({ request, env }) {
              'if you don’t hear back, contact hello@realplannet.com with your payment ID.',
     }, 502);
   }
+
+  // 4. LinkedIn add-on (best-effort, non-blocking) — the customer already
+  //    has a working CV at this point regardless of what happens below.
+  //    A LinkedIn failure must never take down a successful CV delivery
+  //    they already paid for; it gets its own alert instead so it can be
+  //    resolved manually (same "paid but didn't get everything" pattern
+  //    as saveFailedGeneration, just scoped to this one add-on).
+  let linkedin = null;
+  if (includeLinkedin) {
+    try {
+      const copy = await generateLinkedInCopy(enhancedCV, env);
+      const linkedinDocxBuffer = await renderLinkedInDOCX(copy, enhancedCV);
+      await saveLinkedInOrder(sessionId, fileId, razorpayPaymentId || null, copy.headline, copy.about, linkedinDocxBuffer, env);
+      linkedin = { success: true, docxFilename: `${safeName}_LinkedIn.docx` };
+    } catch (err) {
+      console.error('LinkedIn add-on generation error:', err);
+      await sendGenerationFailureAlert({
+        sessionId, razorpayOrderId, razorpayPaymentId, contact, template, mode,
+        error: new Error(`LinkedIn add-on failed (CV itself succeeded, fileId=${fileId}): ${err.message}`),
+      }, env);
+      linkedin = { success: false };
+    }
+  }
+
+  return json({
+    success:      true,
+    fileId,
+    name:         safeName,
+    docxFilename: `${safeName}_CV.docx`,
+    linkedin,
+  });
 }
