@@ -809,7 +809,13 @@ const App = (() => {
     });
     const verifyData = await verifyRes.json();
     if (!verifyRes.ok) throw new Error(verifyData.error || 'Payment verification failed');
-    trackEvent('payment_completed', { template: selectedTemplate, flow_mode: flowMode });
+    trackEvent('payment_completed', {
+      template: selectedTemplate,
+      flow_mode: flowMode,
+      value: paymentTotalRupees(),
+      currency: 'INR',
+      transaction_id: payment.razorpay_payment_id,
+    });
     sendFinalLead('payment_completed'); // the one Zoho-bound submission — "Completed"
 
     // 2. Show generation screen
